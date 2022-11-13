@@ -1,0 +1,66 @@
+{
+	"common": {
+		"detect": true,
+		"async": false,
+		"procType": 0 // 0 - unknown, 1 - rk
+	},
+	"imgproc": {
+		"active": false,
+		"type": 1, // 0 - binary, 1 - saturation
+		"red": 30,
+		"green": 10,
+		"blue": 30
+	},
+	"nn": {
+		"type": 8, // DnnDarknet, DnnCaffe, DnnTensorflow, DnnTorch, DnnONNX, Rknn, Khadas, Tengine, TengineTimvx
+		"modelPath": "/home/alexey/model/mobile_net/yolov3_uint8.tmfile",
+		//"cfgPath": "/home/alexey/model/mobile_net/yolov3.cfg",
+		//"modelPath": "/home/alexey/model/pedestrians/autostatv3_fast_yolov3_final.weights",
+		//"cfgPath": "/home/alexey/model/pedestrians/autostatv3_fast_yolov3.cfg",
+		"backend": 0,
+		"target": 0,
+		"modelWidth": 416,
+		"modelHeight": 416,
+		"modelChannels": 3,
+		"numClasses": 80,
+		"confThreshold": 0.4,
+		"nmsThreshold": 0.25
+	},
+	"input": {
+		"type": 1, // 0 - camera, 1 - file
+		"camera": {
+			"dev": 0,
+			"width": 640,
+			"height": 480,
+			"fps": 20,
+			"format": "YUY2"
+		},
+		"file": {
+			"path": "/home/alexey/model/sample.mp4"
+		}
+	},
+	"output": {
+		"type": 0, // 0 - null, 1 - rtp, 2 - hls, 3 - rtsp, 4 - file
+		"window": true,
+		"params": {
+			"width": 640,
+			"height": 480,
+			"fps": 20,
+			"bitrate": 400000,
+			"gop": 12
+		},
+		"rtp": {
+			"host": "127.0.0.1",
+			"port": 5000
+		},
+		"hls": {
+			"address": "192.168.1.33:8080",
+			"location": "/home/alexey/projects/nnstream/data/hls/segment_%05d.ts",
+			"playlistLocation": "/home/alexey/projects/nnstream/data/hls/playlist.m3u8"
+		},
+		"file": {
+			"path": "/home/alexey/video.mp4",
+			"codecid": 27 // h264
+		}
+	}
+}
