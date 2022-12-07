@@ -15,6 +15,7 @@ protected:
 	int _modelWidth;
 	int _modelHeight;
 	int _numClasses;
+	string _classesFile;
 	std::vector<string> _classes;
 	std::vector<float> _anchors;
 
@@ -40,6 +41,7 @@ public:
 	void setNumClasses(int arg) { _numClasses = arg; }
 	void setConfThreshold(float arg) { _confThreshold = arg; }
 	void setNmsThreshold(float arg) { _nmsThreshold = arg; }
+	void setClassesFile(const string &fileName) { _classesFile = fileName; }
 	void setClasses(const std::vector<string> &classes) { _classes = classes; }
 	void setAnchors(const std::vector<float> &anchors) { _anchors = anchors; }
 
@@ -49,6 +51,8 @@ public:
 	int numClasses() const { return _numClasses; }
 	int confThreshold() const { return _confThreshold; }
 	int nmsThreshold() const { return _nmsThreshold; }
+	string classesFile() const { return _classesFile; }
+	std::vector<string> classes() const { return _classes; }
 };
 
 typedef std::shared_ptr<INNetwork> NNetworkPtr;

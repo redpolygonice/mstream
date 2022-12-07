@@ -1,21 +1,21 @@
-#ifndef KHADASNETWORK_H
-#define KHADASNETWORK_H
+#ifndef KHADAS_H
+#define KHADAS_H
 
 #include "common/types.h"
 #include "innetwork.h"
 
 // Khadas neural network
-class KhadasNetwork : public INNetwork
+class Khadas : public INNetwork
 {
 public:
-	KhadasNetwork();
-	virtual ~KhadasNetwork();
+	Khadas();
+	virtual ~Khadas();
 
 public:
-	static NNetworkPtr create() { return std::make_shared<KhadasNetwork>(); }
+	static NNetworkPtr create() { return std::make_shared<Khadas>(); }
 	bool init(const string &model, const string &cfg, void *params = nullptr) override;
 	bool setInput(const MatPtr &origFrame) override;
 	bool detect(RectList &out) override;
 };
 
-#endif // KHADASNETWORK_H
+#endif // KHADAS_H

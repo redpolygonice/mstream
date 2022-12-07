@@ -1,20 +1,20 @@
-#include "dnnetwork.h"
+#include "dnn.h"
 #include "common/log.h"
 #include "common/common.h"
 #include "common/config.h"
 
-DNNetwork::DNNetwork(NnType type)
+Dnn::Dnn(NnType type)
 	: INNetwork(type)
 	, _width(0)
 	, _height(0)
 {
 }
 
-DNNetwork::~DNNetwork()
+Dnn::~Dnn()
 {
 }
 
-bool DNNetwork::init(const std::string &model, const std::string &cfg, void *params)
+bool Dnn::init(const std::string &model, const std::string &cfg, void *params)
 {
 	if (!isFileExists(model))
 	{
@@ -59,19 +59,7 @@ bool DNNetwork::init(const std::string &model, const std::string &cfg, void *par
 	return true;
 }
 
-bool DNNetwork::setInput(const MatPtr &frame)
-{
-	cv::Mat blobFromImg;
-	cv::dnn::blobFromImage(*frame, blobFromImg, 1 / 255.0, cv::Size(_modelWidth, _modelHeight), cv::Scalar(), true, false);
-	_net.setInput(blobFromImg);
-
-	_width = frame->cols;
-	_height = frame->rows;
-
-	return true;
-}
-
-std::vector<cv::String> DNNetwork::getOutputsNames()
+std::vector<cv::String> Dnn::getOutputsNames()
 {
 	std::vector<cv::String> names;
 	std::vector<int> outLayers = _net.getUnconnectedOutLayers();
@@ -84,7 +72,19 @@ std::vector<cv::String> DNNetwork::getOutputsNames()
 	return names;
 }
 
-bool DNNetwork::detect(RectList &out)
+bool Dnn::setInput(const MatPtr &frame)
+{
+	cv::Mat blobFromImg;
+	cv::dnn::blobFromImage(*frame, blobFromImg, 1 / 255.0, cv::Size(_modelWidth, _modelHeight), cv::Scalar(), true, false);
+
+	_net.setInput(blobFromImg);
+	_width = frame->cols;
+	_height = frame->rows;
+
+	return true;
+}
+
+bool Dnn::detect(RectList &out)
 {
 	out.clear();
 	bool result = false;
@@ -105,7 +105,7 @@ bool DNNetwork::detect(RectList &out)
 		{
 			cv::Mat scores =  output[i].row(j).colRange(5, colsCoordinatesPlusClassScore);
 			cv::Point positionOfMax;
-			double confidence;
+			double confidence = 0.0;
 			minMaxLoc(scores, 0, &confidence, 0, &positionOfMax);
 
 			if (confidence > _confThreshold)
@@ -137,4 +137,3 @@ bool DNNetwork::detect(RectList &out)
 
 	return result;
 }
-

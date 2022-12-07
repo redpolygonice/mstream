@@ -1,3 +1,4 @@
+#ifdef USE_TENGINE
 #ifndef TENGINEPOSTPROCESS_H
 #define TENGINEPOSTPROCESS_H
 
@@ -29,3 +30,4 @@ public:
 };
 
 #endif // TENGINEPOSTPROCESS_H
+#endif

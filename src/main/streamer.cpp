@@ -8,11 +8,19 @@
 #include "output/fileoutput.h"
 #include "output/nulloutput.h"
 
-#include "nn/dnnetwork.h"
-#include "nn/rknnnetwork.h"
-#include "nn/khadasnetwork.h"
-#include "nn/tenginenetwork.h"
-#include "nn/tenginetimvxnetwork.h"
+#include "nn/dnn.h"
+#include "nn/dnnonnx.h"
+#include "nn/khadas.h"
+
+#ifdef USE_RKNN
+#include "nn/rknn.h"
+#endif
+
+#ifdef USE_TENGINE
+#include "nn/tengine.h"
+#include "nn/tengine8bit.h"
+#include "nn/tenginetimvx.h"
+#endif
 
 StreamerPtr Streamer::_instance = nullptr;
 
@@ -48,27 +56,33 @@ bool Streamer::start()
 	if (_detect)
 	{
 		if (Config::instance()->nnType() == NnType::DnnDarknet)
-			_nn = DNNetwork::create(Config::instance()->nnType());
+			_nn = Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnCaffe)
-			_nn = DNNetwork::create(Config::instance()->nnType());
+			_nn = Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnTensorflow)
-			_nn = DNNetwork::create(Config::instance()->nnType());
+			_nn = Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnTorch)
-			_nn = DNNetwork::create(Config::instance()->nnType());
+			_nn = Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnONNX)
-			_nn = DNNetwork::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::Rknn)
-			_nn = RknnNetwork::create();
+			_nn = DnnOnnx::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::Khadas)
-			_nn = KhadasNetwork::create();
+			_nn = Khadas::create();
+#ifdef USE_RKNN
+		else if (Config::instance()->nnType() == NnType::Rknn)
+			_nn = Rknn::create();
+#endif
+#ifdef USE_TENGINE
 		else if (Config::instance()->nnType() == NnType::Tengine)
-			_nn = TengineNetwork::create();
+			_nn = Tengine::create();
+		else if (Config::instance()->nnType() == NnType::Tengine8bit)
+			_nn = Tengine8bit::create();
 		else if (Config::instance()->nnType() == NnType::TengineTimvx)
-			_nn = TengineTimvxNetwork::create();
+			_nn = TengineTimvx::create();
+#endif
 
-		if (!_nn->init(Config::instance()->modelPath(), Config::instance()->cfgPath()))
+		if (_nn == nullptr)
 		{
-			LOGE("Can't load NN!");
+			LOGE("Wrong NN type!");
 			return false;
 		}
 
@@ -78,6 +92,13 @@ bool Streamer::start()
 		_nn->setNumClasses(Config::instance()->numClasses());
 		_nn->setConfThreshold(Config::instance()->confThreshold());
 		_nn->setNmsThreshold(Config::instance()->nmsThreshold());
+		_nn->setClassesFile(Config::instance()->classesFile());
+
+		if (!_nn->init(Config::instance()->modelPath(), Config::instance()->cfgPath()))
+		{
+			LOGE("Can't load NN!");
+			return false;
+		}
 	}
 
 	// Load image processor
@@ -248,7 +269,7 @@ bool Streamer::detect(const MatPtr &frame)
 	_nn->setInput(frame);
 	if (_nn->detect(rects))
 	{
-		LOG("rects count " << rects.size());
+		LOG("Detect count: " << rects.size());
 		for (cv::Rect &rect : rects)
 			cv::rectangle(*frame, rect, cv::Scalar(0, 0, 255), 3, 8, 0);
 		result = true;

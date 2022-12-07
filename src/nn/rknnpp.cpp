@@ -1,4 +1,5 @@
-#include "rknnpostprocess.h"
+#ifdef USE_RKNN
+#include "rknnpp.h"
 
 using namespace cv;
 
@@ -246,3 +247,4 @@ void get_det_rects(RectList &out, detection_t *dets, int width, int height, int 
 RknnPostProcess::RknnPostProcess()
 {
 }
+#endif

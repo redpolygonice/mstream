@@ -46,6 +46,7 @@ bool FileInput::read(MatPtr &frame)
 {
 	if (_reader.read(*frame))
 	{
+		//LOGD("Frame type: " << frame->type());
 		if (frame->type() == CV_8UC4)
 			cv::cvtColor(*frame, *frame, cv::COLOR_BGRA2BGR, 3);
 		return true;

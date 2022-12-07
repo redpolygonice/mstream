@@ -1,3 +1,4 @@
+#ifdef USE_RKNN
 #ifndef RKNNPOSTPROCESS_H
 #define RKNNPOSTPROCESS_H
 
@@ -49,3 +50,4 @@ public:
 };
 
 #endif // RKNNPOSTPROCESS_H
+#endif

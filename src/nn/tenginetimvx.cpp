@@ -1,12 +1,12 @@
-#include "tenginetimvxnetwork.h"
+#ifdef USE_TENGINE
+#include "tenginetimvx.h"
 #include "common/log.h"
 #include "common/common.h"
-#include "tenginepostprocess.h"
 
 #include <tengine/ocl_device.h>
 #include <tengine/timvx_device.h>
 
-TengineTimvxNetwork::TengineTimvxNetwork()
+TengineTimvx::TengineTimvx()
 	: INNetwork(NnType::TengineTimvx)
 	, _graph(nullptr)
 	, _inputTensor(nullptr)
@@ -17,11 +17,11 @@ TengineTimvxNetwork::TengineTimvxNetwork()
 {
 }
 
-TengineTimvxNetwork::~TengineTimvxNetwork()
+TengineTimvx::~TengineTimvx()
 {
 }
 
-bool TengineTimvxNetwork::init(const std::string &model, const std::string &cfg, void *params)
+bool TengineTimvx::init(const std::string &model, const std::string &cfg, void *params)
 {
 	_postProcess.setParent(shared_from_this());
 
@@ -104,7 +104,7 @@ bool TengineTimvxNetwork::init(const std::string &model, const std::string &cfg,
 	return true;
 }
 
-bool TengineTimvxNetwork::setInput(const MatPtr &frame)
+bool TengineTimvx::setInput(const MatPtr &frame)
 {
 	cv::Mat img;
 	if (frame->channels() == 1)
@@ -145,7 +145,7 @@ bool TengineTimvxNetwork::setInput(const MatPtr &frame)
 	return true;
 }
 
-bool TengineTimvxNetwork::detect(RectList &out)
+bool TengineTimvx::detect(RectList &out)
 {
 	out.clear();
 
@@ -156,9 +156,9 @@ bool TengineTimvxNetwork::detect(RectList &out)
 	return true;
 }
 
-void TengineTimvxNetwork::postProcess(RectList &out)
+void TengineTimvx::postProcess(RectList &out)
 {
-	/* dequant output data */
+	// Dequant output data
 	tensor_t p8_output = get_graph_output_tensor(_graph, 2, 0);
 	tensor_t p16_output = get_graph_output_tensor(_graph, 1, 0);
 	tensor_t p32_output = get_graph_output_tensor(_graph, 0, 0);
@@ -251,3 +251,4 @@ void TengineTimvxNetwork::postProcess(RectList &out)
 		out.push_back(objects[i].rect);
 	}
 }
+#endif

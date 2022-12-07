@@ -1,8 +1,9 @@
-#include "rknnnetwork.h"
+#ifdef USE_RKNN
+#include "rknn.h"
 #include "common/log.h"
 #include "common/common.h"
 
-#include "rknnpostprocess.h"
+#include "rknnpp.h"
 
 #ifdef X86_64
 inline const char* get_format_string(rknn_tensor_format fmt)
@@ -49,18 +50,18 @@ static void dump_tensor_attr(rknn_tensor_attr* attr)
 	LOG(dump);
 }
 
-RknnNetwork::RknnNetwork()
+Rknn::Rknn()
 	: INNetwork(NnType::Rknn)
 	, _width(0)
 	, _height(0)
 {
 }
 
-RknnNetwork::~RknnNetwork()
+Rknn::~Rknn()
 {
 }
 
-bool RknnNetwork::init(const std::string &model, const std::string &cfg, void *params)
+bool Rknn::init(const std::string &model, const std::string &cfg, void *params)
 {
 	if (!isFileExists(model))
 	{
@@ -137,7 +138,7 @@ bool RknnNetwork::init(const std::string &model, const std::string &cfg, void *p
 	return true;
 }
 
-bool RknnNetwork::setInput(const MatPtr &origFrame)
+bool Rknn::setInput(const MatPtr &origFrame)
 {
 	cv::Mat frame = origFrame->clone();
 	if (origFrame->cols != _modelWidth || origFrame->rows != _modelHeight)
@@ -163,7 +164,7 @@ bool RknnNetwork::setInput(const MatPtr &origFrame)
 	return true;
 }
 
-bool RknnNetwork::detect(RectList &out)
+bool Rknn::detect(RectList &out)
 {
 	out.clear();
 
@@ -211,3 +212,4 @@ bool RknnNetwork::detect(RectList &out)
 	free_detections(dets, _io_num.n_output);
 	return true;
 }
+#endif

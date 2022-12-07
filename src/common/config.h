@@ -43,6 +43,7 @@ enum class NnType
 	Rknn,
 	Khadas,
 	Tengine,
+	Tengine8bit,
 	TengineTimvx
 };
 
@@ -73,9 +74,11 @@ private:
 	int _modelWidth;
 	int _modelHeight;
 	int _modelChannels;
-	int _numClasses;
 	float _confThreshold;
 	float _nmsThreshold;
+	int _numClasses;
+	string _classesFile;
+	StringList _classes;
 
 	// Input
 	InputType _inputType;
@@ -136,9 +139,10 @@ public:
 	int modelWidth() const { return _modelWidth; }
 	int modelHeight() const { return _modelHeight; }
 	int modelChannels() const { return _modelChannels; }
-	int numClasses() const { return _numClasses; }
 	float confThreshold() const { return _confThreshold; }
 	float nmsThreshold() const { return _nmsThreshold; }
+	int numClasses() const { return _numClasses; }
+	string classesFile() const { return _classesFile; }
 	InputType inputType() const { return _inputType; }
 	int cameraDev() const { return _dev; }
 	int cameraWidth() const { return _width; }

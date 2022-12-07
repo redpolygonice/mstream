@@ -81,9 +81,10 @@ bool Config::load()
 	_modelWidth = nnObject["modelWidth"].asInt();
 	_modelHeight = nnObject["modelHeight"].asInt();
 	_modelChannels = nnObject["modelChannels"].asInt();
-	_numClasses = nnObject["numClasses"].asInt();
 	_confThreshold = nnObject["confThreshold"].asFloat();
 	_nmsThreshold = nnObject["nmsThreshold"].asFloat();
+	_numClasses = nnObject["numClasses"].asInt();
+	_classesFile = nnObject["classesFile"].asString();
 
 	// Input object
 	Json::Value inputObject = root["input"];

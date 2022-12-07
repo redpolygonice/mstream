@@ -1,4 +1,5 @@
-#include "tenginepostprocess.h"
+#ifdef USE_TENGINE
+#include "tenginepp.h"
 
 static inline float sigmoid(float x)
 {
@@ -173,4 +174,4 @@ void TenginePostProcess::generate_proposals(int stride, const float *feat, float
 		}
 	}
 }
-
+#endif

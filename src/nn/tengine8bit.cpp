@@ -1,25 +1,27 @@
-#include "tenginenetwork.h"
+#ifdef USE_TENGINE
+#include "tengine8bit.h"
 #include "common/log.h"
 #include "common/common.h"
-#include "tenginepostprocess.h"
 
 #include <tengine/ocl_device.h>
+#include <tengine/timvx_device.h>
 
-TengineNetwork::TengineNetwork()
-	: INNetwork(NnType::Tengine)
+Tengine8bit::Tengine8bit()
+	: INNetwork(NnType::TengineTimvx)
 	, _graph(nullptr)
 	, _inputTensor(nullptr)
-	, _opencl(true)
+	, _inputScale(0.0f)
+	, _inputZeroPoint(0)
 	, _width(0)
 	, _height(0)
 {
 }
 
-TengineNetwork::~TengineNetwork()
+Tengine8bit::~Tengine8bit()
 {
 }
 
-bool TengineNetwork::init(const std::string &model, const std::string &cfg, void *params)
+bool Tengine8bit::init(const std::string &model, const std::string &cfg, void *params)
 {
 	_postProcess.setParent(shared_from_this());
 
@@ -33,7 +35,7 @@ bool TengineNetwork::init(const std::string &model, const std::string &cfg, void
 	struct options opt;
 	opt.num_thread = threads;
 	opt.cluster = TENGINE_CLUSTER_ALL;
-	opt.precision = TENGINE_MODE_FP32;
+	opt.precision = TENGINE_MODE_UINT8;
 	opt.affinity = 0;
 
 	// Inital tengine
@@ -45,62 +47,32 @@ bool TengineNetwork::init(const std::string &model, const std::string &cfg, void
 
 	LOG("Tengine-lite library version: " << get_tengine_version());
 
-	if (_opencl)
+	// Create graph, load tengine model xxx.tmfile
+	_graph = create_graph(nullptr, "tengine", model.c_str());
+	if (_graph == nullptr)
 	{
-		LOG("Trying OpenCL ..");
-		context_t openclContext = create_context("ocl", 1);
-
-		struct ocl_option oclOpt;
-		oclOpt.cache_path = (char*)("test.cache");
-		oclOpt.load_cache = true;
-		oclOpt.store_cache = true;
-
-		if (set_context_device(openclContext, "OCL", (void*)&oclOpt, sizeof(oclOpt)) != 0)
-		{
-			LOGW("Add context device opencl failed!");
-		}
-
-		// Create graph, load tengine model xxx.tmfile
-		_graph = create_graph(openclContext, "tengine", model.c_str());
-		if (_graph == nullptr)
-		{
-			LOGW("Load OpenCL failed!");
-			_graph = create_graph(nullptr, "tengine", model.c_str());
-			if (_graph == nullptr)
-			{
-				LOGE("Create graph failed!");
-				return false;
-			}
-		}
-	}
-	else
-	{
-		_graph = create_graph(nullptr, "tengine", model.c_str());
-		if (_graph == nullptr)
-		{
-			LOGE("Create graph failed!");
-			return false;
-		}
+		LOGE("Create graph failed!");
+		return false;
 	}
 
 	int imgSize = _modelHeight * _modelWidth * _modelChannels;
 	int dims[] = { 1, _modelChannels, _modelHeight, _modelWidth };
 	_inputData.resize(imgSize);
 
-	tensor_t inputTensor = get_graph_input_tensor(_graph, 0, 0);
-	if (inputTensor == nullptr)
+	_inputTensor = get_graph_input_tensor(_graph, 0, 0);
+	if (_inputTensor == nullptr)
 	{
 		LOGE("Get input tensor failed!");
 		return false;
 	}
 
-	if (set_tensor_shape(inputTensor, dims, 4) < 0)
+	if (set_tensor_shape(_inputTensor, dims, 4) < 0)
 	{
 		LOGE("Set input tensor shape failed!");
 		return false;
 	}
 
-	if (set_tensor_buffer(inputTensor, _inputData.data(), imgSize * sizeof(float)) < 0)
+	if (set_tensor_buffer(_inputTensor, _inputData.data(), imgSize) < 0)
 	{
 		LOGE("Set input tensor buffer failed!");
 		return false;
@@ -113,10 +85,12 @@ bool TengineNetwork::init(const std::string &model, const std::string &cfg, void
 		return false;
 	}
 
+	// Prepare process input data, set the data mem to input tensor
+	get_tensor_quant_param(_inputTensor, &_inputScale, &_inputZeroPoint, 1);
 	return true;
 }
 
-bool TengineNetwork::setInput(const MatPtr &frame)
+bool Tengine8bit::setInput(const MatPtr &frame)
 {
 	cv::Mat img;
 	if (frame->channels() == 1)
@@ -137,7 +111,16 @@ bool TengineNetwork::setInput(const MatPtr &frame)
 			{
 				int inIndex = h * _modelWidth * _modelChannels + w * _modelChannels + c;
 				int outIndex = c * _modelHeight * _modelWidth + h * _modelWidth + w;
-				_inputData[outIndex] = (imgData[inIndex] - mean[c]) * scale[c];
+
+				// quant to uint8
+				float input_fp32 = (imgData[inIndex] - mean[c]) * scale[c];
+				int udata = (round)(input_fp32 / _inputScale + (float)_inputZeroPoint);
+				if (udata > 255)
+					udata = 255;
+				else if (udata < 0)
+					udata = 0;
+
+				_inputData[outIndex] = udata;
 			}
 		}
 	}
@@ -148,7 +131,7 @@ bool TengineNetwork::setInput(const MatPtr &frame)
 	return true;
 }
 
-bool TengineNetwork::detect(RectList &out)
+bool Tengine8bit::detect(RectList &out)
 {
 	out.clear();
 
@@ -159,24 +142,50 @@ bool TengineNetwork::detect(RectList &out)
 	return true;
 }
 
-void TengineNetwork::postProcess(RectList &out)
+void Tengine8bit::postProcess(RectList &out)
 {
+	// Dequant output data
 	tensor_t p8_output = get_graph_output_tensor(_graph, 2, 0);
 	tensor_t p16_output = get_graph_output_tensor(_graph, 1, 0);
 	tensor_t p32_output = get_graph_output_tensor(_graph, 0, 0);
 
-	float* p8_data = nullptr;
-	float* p16_data = nullptr;
-	float* p32_data = nullptr;
+	float p8_scale = 0.f;
+	float p16_scale = 0.f;
+	float p32_scale = 0.f;
+	int p8_zero_point = 0;
+	int p16_zero_point = 0;
+	int p32_zero_point = 0;
 
-	if (p8_output != nullptr)
-		p8_data = (float*)get_tensor_buffer(p8_output);
+	get_tensor_quant_param(p8_output, &p8_scale, &p8_zero_point, 1);
+	get_tensor_quant_param(p16_output, &p16_scale, &p16_zero_point, 1);
+	get_tensor_quant_param(p32_output, &p32_scale, &p32_zero_point, 1);
 
-	if (p16_output != nullptr)
-		p16_data = (float*)get_tensor_buffer(p16_output);
+	int p8_count = get_tensor_buffer_size(p8_output) / sizeof(uint8_t);
+	int p16_count = get_tensor_buffer_size(p16_output) / sizeof(uint8_t);
+	int p32_count = get_tensor_buffer_size(p32_output) / sizeof(uint8_t);
 
-	if (p32_output != nullptr)
-		p32_data = (float*)get_tensor_buffer(p32_output);
+	uint8_t* p8_data_u8 = (uint8_t*)get_tensor_buffer(p8_output);
+	uint8_t* p16_data_u8 = (uint8_t*)get_tensor_buffer(p16_output);
+	uint8_t* p32_data_u8 = (uint8_t*)get_tensor_buffer(p32_output);
+
+	std::vector<float> p8_data(p8_count);
+	std::vector<float> p16_data(p16_count);
+	std::vector<float> p32_data(p32_count);
+
+	for (int c = 0; c < p8_count; c++)
+	{
+		p8_data[c] = ((float)p8_data_u8[c] - (float)p8_zero_point) * p8_scale;
+	}
+
+	for (int c = 0; c < p16_count; c++)
+	{
+		p16_data[c] = ((float)p16_data_u8[c] - (float)p16_zero_point) * p16_scale;
+	}
+
+	for (int c = 0; c < p32_count; c++)
+	{
+		p32_data[c] = ((float)p32_data_u8[c] - (float)p32_zero_point) * p32_scale;
+	}
 
 	std::vector<Object> proposals;
 	std::vector<Object> objects8;
@@ -184,23 +193,12 @@ void TengineNetwork::postProcess(RectList &out)
 	std::vector<Object> objects32;
 	std::vector<Object> objects;
 
-	if (p32_data != nullptr)
-	{
-		_postProcess.generate_proposals(32, p32_data, _confThreshold, objects32);
-		proposals.insert(proposals.end(), objects32.begin(), objects32.end());
-	}
-
-	if (p16_data != nullptr)
-	{
-		_postProcess.generate_proposals(16, p16_data, _confThreshold, objects16);
-		proposals.insert(proposals.end(), objects16.begin(), objects16.end());
-	}
-
-	if (p8_data != nullptr)
-	{
-		_postProcess.generate_proposals(8, p8_data, _confThreshold, objects8);
-		proposals.insert(proposals.end(), objects8.begin(), objects8.end());
-	}
+	_postProcess.generate_proposals(32, p32_data.data(), _confThreshold, objects32);
+	proposals.insert(proposals.end(), objects32.begin(), objects32.end());
+	_postProcess.generate_proposals(16, p16_data.data(), _confThreshold, objects16);
+	proposals.insert(proposals.end(), objects16.begin(), objects16.end());
+	_postProcess.generate_proposals(8, p8_data.data(), _confThreshold, objects8);
+	proposals.insert(proposals.end(), objects8.begin(), objects8.end());
 
 	_postProcess.sort_descent_inplace(proposals);
 
@@ -239,3 +237,4 @@ void TengineNetwork::postProcess(RectList &out)
 		out.push_back(objects[i].rect);
 	}
 }
+#endif
