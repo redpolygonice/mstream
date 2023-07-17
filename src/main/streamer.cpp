@@ -4,6 +4,7 @@
 #include "input/ocvinput.h"
 #include "input/fileinput.h"
 #include "output/rtpoutput.h"
+#include "output/rtspoutput.h"
 #include "output/hlsoutput.h"
 #include "output/fileoutput.h"
 #include "output/nulloutput.h"
@@ -135,6 +136,8 @@ bool Streamer::start()
 		_output = NullOutput::create();
 	else if (Config::instance()->outputType() == OutputType::Rtp)
 		_output = RtpOutput::create();
+	else if (Config::instance()->outputType() == OutputType::Rtsp)
+		_output = RtspOutput::create();
 	else if (Config::instance()->outputType() == OutputType::Hls)
 		_output = HlsOutput::create();
 	else if (Config::instance()->outputType() == OutputType::File)

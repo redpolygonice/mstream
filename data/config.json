@@ -12,17 +12,18 @@
 		"blue": 30
 	},
 	"nn": {
-	    "type": 4, // DnnDarknet, DnnCaffe, DnnTensorflow, DnnTorch, DnnONNX, Rknn, Khadas, Tengine, Tengine8bit, TengineTimvx
-		"modelPath": "/home/alexey/model/yolox/object_detection_yolox_2022nov_int8.onnx",
+	    "type": 0, // DnnDarknet = 0, DnnCaffe, DnnTensorflow, DnnTorch, DnnONNX, Rknn, Khadas, Tengine, Tengine8bit, TengineTimvx
+		"modelPath": "/home/aleksey/distr/model/mobile_net/yolov3.weights",
+		"cfgPath": "/home/aleksey/distr/model/mobile_net/yolov3.cfg",
 		"backend": 0,
 		"target": 0,
-		"modelWidth": 640,
-		"modelHeight": 640,
+		"modelWidth": 416,
+		"modelHeight": 416,
 		"modelChannels": 3,
-		"confThreshold": 0.4,
-		"nmsThreshold": 0.5,
+		"confThreshold": 0.6,
+		"nmsThreshold": 0.7,
 		"numClasses": 80,
-		"classesFile": "/home/alexey/model/yolox/coco.names",
+		"classesFile": "",
 		"classes": []
 	},
 	"input": {
@@ -35,11 +36,11 @@
 			"format": "YUY2"
 		},
 		"file": {
-		    "path": "/home/alexey/model/sample.mp4"
+		    "path": "/home/aleksey/distr/model/sample.mp4"
 		}
 	},
 	"output": {
-	    "type": 0, // 0 - null, 1 - rtp, 2 - hls, 3 - rtsp, 4 - file
+	    "type": 0, // 0 - null, 1 - rtp, 2 - rtsp, 3 - hls, 4 - file
 		"window": true,
 		"params": {
 		    "width": 800,
@@ -58,7 +59,7 @@
 			"playlistLocation": "/home/alexey/projects/nnstream/data/hls/playlist.m3u8"
 		},
 		"file": {
-		    "path": "/home/alexey/video.mp4",
+		    "path": "/home/aleksey/video.mp4",
 			"codecid": 27 // h264
 		}
 	}

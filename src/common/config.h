@@ -16,8 +16,8 @@ enum class OutputType
 {
 	Null,
 	Rtp,
-	Hls,
 	Rtsp,
+	Hls,
 	File
 };
 

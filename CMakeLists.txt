@@ -5,7 +5,7 @@ project(mstream LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(USE_TENGINE "Use Tengine library" OFF)
+option(USE_TENGINE "Use Tengine library" ON)
 option(USE_RKNN "Use RKNN library" OFF)
 
 EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCH)
