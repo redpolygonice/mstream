@@ -6,6 +6,9 @@
 #include <tengine/ocl_device.h>
 #include <tengine/timvx_device.h>
 
+namespace nn
+{
+
 Tengine8bit::Tengine8bit()
 	: INNetwork(NnType::TengineTimvx)
 	, _graph(nullptr)
@@ -237,4 +240,7 @@ void Tengine8bit::postProcess(RectList &out)
 		out.push_back(objects[i].rect);
 	}
 }
+
+}
+
 #endif

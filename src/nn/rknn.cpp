@@ -5,6 +5,9 @@
 
 #include "rknnpp.h"
 
+namespace nn
+{
+
 #ifdef X86_64
 inline const char* get_format_string(rknn_tensor_format fmt)
 {
@@ -212,4 +215,7 @@ bool Rknn::detect(RectList &out)
 	free_detections(dets, _io_num.n_output);
 	return true;
 }
+
+}
+
 #endif

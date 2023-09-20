@@ -6,6 +6,9 @@
 
 #include <opencv2/dnn.hpp>
 
+namespace nn
+{
+
 // DNN network implementation
 class DnnOnnx : public INNetwork
 {
@@ -51,5 +54,7 @@ private:
 	void softmax(const std::vector<cv::Mat> &in, std::vector<std::pair<float,int>> &out) const;
 	void loadClasses(const string &fileName, std::vector<string> &names) const;
 };
+
+}
 
 #endif // DNNONNX_H

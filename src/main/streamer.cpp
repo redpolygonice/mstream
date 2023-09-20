@@ -1,13 +1,14 @@
 #include "streamer.h"
 #include "common/log.h"
 #include "common/config.h"
-#include "input/ocvinput.h"
-#include "input/fileinput.h"
-#include "output/rtpoutput.h"
-#include "output/rtspoutput.h"
-#include "output/hlsoutput.h"
-#include "output/fileoutput.h"
-#include "output/nulloutput.h"
+#include "input/ocv.h"
+#include "input/camera.h"
+#include "input/file.h"
+#include "output/rtp.h"
+#include "output/rtsp.h"
+#include "output/hls.h"
+#include "output/file.h"
+#include "output/null.h"
 
 #include "nn/dnn.h"
 #include "nn/dnnonnx.h"
@@ -57,28 +58,28 @@ bool Streamer::start()
 	if (_detect)
 	{
 		if (Config::instance()->nnType() == NnType::DnnDarknet)
-			_nn = Dnn::create(Config::instance()->nnType());
+			_nn = nn::Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnCaffe)
-			_nn = Dnn::create(Config::instance()->nnType());
+			_nn = nn::Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnTensorflow)
-			_nn = Dnn::create(Config::instance()->nnType());
+			_nn = nn::Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnTorch)
-			_nn = Dnn::create(Config::instance()->nnType());
+			_nn = nn::Dnn::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::DnnONNX)
-			_nn = DnnOnnx::create(Config::instance()->nnType());
+			_nn = nn::DnnOnnx::create(Config::instance()->nnType());
 		else if (Config::instance()->nnType() == NnType::Khadas)
-			_nn = Khadas::create();
+			_nn = nn::Khadas::create();
 #ifdef USE_RKNN
 		else if (Config::instance()->nnType() == NnType::Rknn)
-			_nn = Rknn::create();
+			_nn = nn::Rknn::create();
 #endif
 #ifdef USE_TENGINE
 		else if (Config::instance()->nnType() == NnType::Tengine)
-			_nn = Tengine::create();
+			_nn = nn::Tengine::create();
 		else if (Config::instance()->nnType() == NnType::Tengine8bit)
-			_nn = Tengine8bit::create();
+			_nn = nn::Tengine8bit::create();
 		else if (Config::instance()->nnType() == NnType::TengineTimvx)
-			_nn = TengineTimvx::create();
+			_nn = nn::TengineTimvx::create();
 #endif
 
 		if (_nn == nullptr)
@@ -115,9 +116,9 @@ bool Streamer::start()
 
 	// Create input object
 	if (Config::instance()->inputType() == InputType::Camera)
-		_input = OcvInput::create();
+		_input = input::Camera::create();
 	else if (Config::instance()->inputType() == InputType::File)
-		_input = FileInput::create();
+		_input = input::File::create();
 
 	if (_input == nullptr)
 	{
@@ -133,15 +134,15 @@ bool Streamer::start()
 
 	// Create output object
 	if (Config::instance()->outputType() == OutputType::Null)
-		_output = NullOutput::create();
+		_output = output::Null::create();
 	else if (Config::instance()->outputType() == OutputType::Rtp)
-		_output = RtpOutput::create();
+		_output = output::Rtp::create();
 	else if (Config::instance()->outputType() == OutputType::Rtsp)
-		_output = RtspOutput::create();
+		_output = output::Rtsp::create();
 	else if (Config::instance()->outputType() == OutputType::Hls)
-		_output = HlsOutput::create();
+		_output = output::Hls::create();
 	else if (Config::instance()->outputType() == OutputType::File)
-		_output = FileOutput::create();
+		_output = output::File::create();
 
 	if (_output == nullptr)
 	{
@@ -219,8 +220,18 @@ void Streamer::write()
 
 	LOG("Start detect ..");
 
+	int delay = 1000 / Config::instance()->outputFps();
+	if (_detect)
+		delay = std::max(delay - 50, 10);
+
 	while (_active)
 	{
+		if (!_output->ready())
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			continue;
+		}
+
 		MatPtr frame = nullptr;
 		if (_async)
 			frame = _data.pop();
@@ -245,20 +256,18 @@ void Streamer::write()
 				detect(frame);
 
 			// Show window
+			cv::resize(*frame, *frame, cv::Size(Config::instance()->outputWidth(), Config::instance()->outputHeight()));
 			if (_window)
-			{
-				cv::resize(*frame, *frame, cv::Size(Config::instance()->outputWidth(), Config::instance()->outputHeight()));
 				cv::imshow(windowName, *frame);
-			}
 
 			// Write to output
 			_output->write(frame);
 		}
 
 		if (_window)
-			cv::waitKey(10);
+			cv::waitKey(delay);
 		else
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 	}
 
 	if (_window)

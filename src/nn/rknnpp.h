@@ -5,6 +5,9 @@
 #include "common/types.h"
 #include "rknn_api.h"
 
+namespace nn
+{
+
 #define IMG_WID 416
 #define IMG_HGT 416
 #define GRID0 13
@@ -48,6 +51,8 @@ class RknnPostProcess
 public:
 	RknnPostProcess();
 };
+
+}
 
 #endif // RKNNPOSTPROCESS_H
 #endif

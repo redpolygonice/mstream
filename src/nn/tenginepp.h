@@ -5,6 +5,9 @@
 #include "common/types.h"
 #include "innetwork.h"
 
+namespace nn
+{
+
 struct Object
 {
 	cv::Rect_<float> rect;
@@ -28,6 +31,8 @@ public:
 	void nms_sorted_bboxes(const std::vector<Object>& objects, std::vector<int>& picked, float nms_threshold);
 	void generate_proposals(int stride, const float* feat, float prob_threshold, std::vector<Object>& objects);
 };
+
+}
 
 #endif // TENGINEPOSTPROCESS_H
 #endif

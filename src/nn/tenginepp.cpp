@@ -1,6 +1,9 @@
 #ifdef USE_TENGINE
 #include "tenginepp.h"
 
+namespace nn
+{
+
 static inline float sigmoid(float x)
 {
 	return static_cast<float>(1.f / (1.f + exp(-x)));
@@ -174,4 +177,7 @@ void TenginePostProcess::generate_proposals(int stride, const float *feat, float
 		}
 	}
 }
+
+}
+
 #endif

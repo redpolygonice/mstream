@@ -8,6 +8,9 @@
 
 #include <tengine/c_api.h>
 
+namespace nn
+{
+
 // Tengine neural network
 class TengineTimvx : public INNetwork, public std::enable_shared_from_this<TengineTimvx>
 {
@@ -41,6 +44,8 @@ public:
 private:
 	void postProcess(RectList &out);
 };
+
+}
 
 #endif // TENGINETIMVX_H
 #endif

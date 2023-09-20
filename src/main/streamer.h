@@ -16,9 +16,9 @@ class Streamer : public std::enable_shared_from_this<Streamer>
 {
 private:
 	std::atomic_bool _active;
-	NNetworkPtr _nn;
-	InputPtr _input;
-	OutputPtr _output;
+	nn::NNetworkPtr _nn;
+	input::InputPtr _input;
+	output::OutputPtr _output;
 	ImageProcessor _imageProcessor;
 	ThreadSafeQueue<MatPtr> _data;
 	std::unique_ptr<std::thread> _readThread;

@@ -3,6 +3,9 @@
 #include "common/common.h"
 #include "common/config.h"
 
+namespace nn
+{
+
 DnnOnnx::DnnOnnx(NnType type)
 	: INNetwork(type)
 	, _dnnType(DnnType::Yolox)
@@ -399,4 +402,6 @@ void DnnOnnx::loadClasses(const std::string &fileName, std::vector<std::string> 
 		names.push_back(line);
 
 	ifs.close();
+}
+
 }

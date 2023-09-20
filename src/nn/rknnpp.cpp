@@ -3,6 +3,9 @@
 
 using namespace cv;
 
+namespace nn
+{
+
 static int nboxes_0 = GRID0 * GRID0 * nanchor;
 static int nboxes_1 = GRID1 * GRID1 * nanchor;
 static int nboxes_2 = GRID2 * GRID2 * nanchor;
@@ -247,4 +250,7 @@ void get_det_rects(RectList &out, detection_t *dets, int width, int height, int 
 RknnPostProcess::RknnPostProcess()
 {
 }
+
+}
+
 #endif

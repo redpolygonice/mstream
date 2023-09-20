@@ -5,6 +5,9 @@
 
 #include <tengine/ocl_device.h>
 
+namespace nn
+{
+
 Tengine::Tengine()
 	: INNetwork(NnType::Tengine)
 	, _graph(nullptr)
@@ -245,4 +248,7 @@ void Tengine::postProcess(RectList &out)
 		out.push_back(objects[i].rect);
 	}
 }
+
+}
+
 #endif

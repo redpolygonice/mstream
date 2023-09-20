@@ -5,7 +5,7 @@ project(mstream LANGUAGES CXX C)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(USE_TENGINE "Use Tengine library" ON)
+option(USE_TENGINE "Use Tengine library" OFF)
 option(USE_RKNN "Use RKNN library" OFF)
 
 EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCH)
@@ -38,7 +38,7 @@ pkg_check_modules(GSTREAMER REQUIRED IMPORTED_TARGET gstreamer-1.0)
 include_directories(
 	${GLIB_INCLUDE_DIRS}
 	${GSTREAMER_INCLUDE_DIRS}
-	)
+    )
 
 # LibAV
 pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
@@ -47,7 +47,19 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
 	libswresample
 	libswscale
 	libavutil
-	)
+    )
+
+# RTSP
+if (${ARCH} MATCHES "x86_64")
+	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/x86_64/include")
+	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/x86_64/lib/libgstrtspserver-1.0.so.0")
+elseif (${ARCH} MATCHES "armv7l")
+	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/include")
+	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/lib/libgstrtspserver-1.0.so.0")
+elseif (${ARCH} MATCHES "aarch64")
+	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/aarch64/include")
+	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/aarch64/lib/libgstrtspserver-1.0.so.0")
+endif()
 
 # RKNN
 if (USE_RKNN)

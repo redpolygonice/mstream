@@ -1,5 +1,8 @@
 #include "khadas.h"
 
+namespace nn
+{
+
 Khadas::Khadas()
 	: INNetwork(NnType::Khadas)
 {
@@ -22,4 +25,6 @@ bool Khadas::setInput(const MatPtr &origFrame)
 bool Khadas::detect(RectList &out)
 {
 	return true;
+}
+
 }

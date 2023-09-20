@@ -7,6 +7,9 @@
 
 #include <rknn_api.h>
 
+namespace nn
+{
+
 class Rknn : public INNetwork
 {
 private:
@@ -28,6 +31,8 @@ public:
 	bool setInput(const MatPtr &origFrame) override;
 	bool detect(RectList &out) override;
 };
+
+}
 
 #endif // RKNN_H
 #endif

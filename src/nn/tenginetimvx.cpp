@@ -6,6 +6,9 @@
 #include <tengine/ocl_device.h>
 #include <tengine/timvx_device.h>
 
+namespace nn
+{
+
 TengineTimvx::TengineTimvx()
 	: INNetwork(NnType::TengineTimvx)
 	, _graph(nullptr)
@@ -251,4 +254,7 @@ void TengineTimvx::postProcess(RectList &out)
 		out.push_back(objects[i].rect);
 	}
 }
+
+}
+
 #endif

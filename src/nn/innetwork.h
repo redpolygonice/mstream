@@ -4,6 +4,9 @@
 #include "common/types.h"
 #include "common/config.h"
 
+namespace nn
+{
+
 // Neural network interface
 class INNetwork
 {
@@ -56,5 +59,7 @@ public:
 };
 
 typedef std::shared_ptr<INNetwork> NNetworkPtr;
+
+}
 
 #endif // INNETWORK_H

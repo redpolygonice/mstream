@@ -6,6 +6,9 @@
 
 #include <opencv2/dnn.hpp>
 
+namespace nn
+{
+
 // DNN network implementation
 class Dnn : public INNetwork
 {
@@ -29,5 +32,7 @@ public:
 private:
 	std::vector<cv::String> getOutputsNames();
 };
+
+}
 
 #endif // DNN_H

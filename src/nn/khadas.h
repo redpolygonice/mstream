@@ -4,6 +4,9 @@
 #include "common/types.h"
 #include "innetwork.h"
 
+namespace nn
+{
+
 // Khadas neural network
 class Khadas : public INNetwork
 {
@@ -17,5 +20,7 @@ public:
 	bool setInput(const MatPtr &origFrame) override;
 	bool detect(RectList &out) override;
 };
+
+}
 
 #endif // KHADAS_H

@@ -8,6 +8,9 @@
 
 #include <tengine/c_api.h>
 
+namespace nn
+{
+
 // Tengine neural network
 class Tengine8bit : public INNetwork, public std::enable_shared_from_this<Tengine8bit>
 {
@@ -41,6 +44,8 @@ public:
 private:
 	void postProcess(RectList &out);
 };
+
+}
 
 #endif // TENGINE8BIT_H
 #endif

@@ -3,6 +3,9 @@
 #include "common/common.h"
 #include "common/config.h"
 
+namespace nn
+{
+
 Dnn::Dnn(NnType type)
 	: INNetwork(type)
 	, _width(0)
@@ -136,4 +139,6 @@ bool Dnn::detect(RectList &out)
 	}
 
 	return result;
+}
+
 }
