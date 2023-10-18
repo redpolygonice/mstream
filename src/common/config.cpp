@@ -97,7 +97,7 @@ bool Config::load()
 	_inputType = static_cast<InputType>(inputObject["type"].asInt());
 
 	// Camera input
-	if (_inputType == InputType::Camera)
+	if (_inputType == InputType::Camera || _inputType == InputType::V4lCamera)
 	{
 		Json::Value cameraObject = inputObject["camera"];
 		if (cameraObject.isNull())

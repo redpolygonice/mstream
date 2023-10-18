@@ -9,6 +9,7 @@ static const char kConfigFile[] = "config.json";
 enum class InputType
 {
 	Camera,
+	V4lCamera,
 	File
 };
 

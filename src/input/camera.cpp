@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "common/common.h"
 #include "common/log.h"
 #include "common/config.h"
 
@@ -16,7 +17,22 @@ Camera::~Camera()
 
 bool Camera::open()
 {
-	if (!_capture.open(Config::instance()->cameraDev()))
+	int dev = Config::instance()->cameraDev();
+	if (dev < 0)
+	{
+		dev = getVideoDevice();
+		if (dev < 0)
+		{
+			LOGE("No camera device!");
+			return false;
+		}
+		else
+		{
+			LOG("Found video device #" << dev);
+		}
+	}
+
+	if (!_capture.open(dev))
 	{
 		LOGE("Can't open camera device!");
 		return false;

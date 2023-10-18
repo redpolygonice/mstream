@@ -8,6 +8,18 @@
 #include <dirent.h>
 #include <unistd.h>
 
+string i2s(int number)
+{
+	char szNumber[20];
+	sprintf(szNumber, "%d", number);
+	return szNumber;
+}
+
+int s2i(const string &text)
+{
+	return atoi(text.c_str());
+}
+
 string currentTime()
 {
 	std::time_t time = std::time(NULL);
@@ -154,4 +166,40 @@ bool createProcess(const char *path, char *const args[], char *const env[])
 
 	execve(path, args, env);
 	return true;
+}
+
+int getVideoDevice()
+{
+	fs::directory_iterator begin("/dev");
+	fs::directory_iterator end;
+
+	std::vector<fs::path> files;
+	std::copy_if(begin, end, std::back_inserter(files), [](const fs::path& path) {
+		return path.string().find("video") != string::npos;
+	});
+
+	if (files.empty())
+		return -1;
+
+	cv::VideoCapture capture;
+	for (fs::path &filePath : files)
+	{
+		string fileName = filePath.string();
+		if (capture.open(fileName))
+		{
+			string dev;
+			for (int i = fileName.size() - 1; i >= 0; --i)
+			{
+				if (std::isdigit(fileName[i], std::locale()))
+					dev.push_back(fileName[i]);
+				else
+					break;
+			}
+
+			std::reverse(dev.begin(), dev.end());
+			return s2i(dev);
+		}
+	}
+
+	return -1;
 }

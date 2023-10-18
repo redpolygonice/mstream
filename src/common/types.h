@@ -46,6 +46,9 @@ typedef std::vector<cv::Rect> RectList;
 #define PS "/"
 #endif
 
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 // String list
 typedef std::vector<string> StringList;
 typedef std::vector<string>::iterator StringListIterator;

@@ -24,6 +24,7 @@ private:
 	GstClockTime _pts;
 	ThreadSafeQueue<MatPtr> _data;
 	std::thread _thread;
+	MatPtr _frame;
 
 private:
 	static void media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, gpointer data);

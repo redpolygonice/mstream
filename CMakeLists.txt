@@ -54,8 +54,8 @@ if (${ARCH} MATCHES "x86_64")
 	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/x86_64/include")
 	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/x86_64/lib/libgstrtspserver-1.0.so.0")
 elseif (${ARCH} MATCHES "armv7l")
-	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/include")
-	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/lib/libgstrtspserver-1.0.so.0")
+	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/1.14.4/include")
+	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/armv7l/1.14.4/lib/libgstrtspserver-1.0.so.0")
 elseif (${ARCH} MATCHES "aarch64")
 	include_directories("${CMAKE_SOURCE_DIR}/lib/rtsp/aarch64/include")
 	link_libraries("${CMAKE_SOURCE_DIR}/lib/rtsp/aarch64/lib/libgstrtspserver-1.0.so.0")
@@ -141,5 +141,5 @@ set(ENV{DISABLE_IDE_DEBUG} 1)
 
 # Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} Threads::Threads -lfreeimage ${JSONCPP_LIBRARIES} ${OpenCV_LIBS} PkgConfig::GSTREAMER PkgConfig::LIBAV)
+target_link_libraries(${PROJECT_NAME} Threads::Threads -lfreeimage -lstdc++fs ${JSONCPP_LIBRARIES} ${OpenCV_LIBS} PkgConfig::GSTREAMER PkgConfig::LIBAV)
 

@@ -13,11 +13,13 @@ Rtsp::Rtsp()
 	, _mounts(nullptr)
 	, _factory(nullptr)
 	, _pts(0)
+	, _frame(nullptr)
 {
 }
 
 Rtsp::~Rtsp()
 {
+	close();
 }
 
 bool Rtsp::open()
@@ -78,7 +80,7 @@ void Rtsp::run()
 
 	gst_rtsp_media_factory_set_launch(_factory,
 									  "( appsrc name=appsrc ! videoconvert ! "
-									  "x264enc speed-preset=ultrafast tune=zerolatency ! rtph264pay name=pay0 pt=96 )");
+									  "x264enc speed-preset=superfast tune=zerolatency ! rtph264pay name=pay0 pt=96 )");
 
 	g_signal_connect(_factory, "media-configure", (GCallback)media_configure, this);
 	gst_rtsp_mount_points_add_factory(_mounts, "/test", _factory);
@@ -125,13 +127,16 @@ void Rtsp::need_data(GstElement *appsrc, guint unused, gpointer data)
 
 	MatPtr frame = pipe->getNextFrame();
 	if (frame == nullptr)
+	{
+		LOGE("[Rtsp] Need data error - no frames!");
 		return;
+	}
 
 	guint size = frame->cols * frame->rows * frame->channels();
 	GstBuffer *buffer = gst_buffer_new_and_alloc(size);
 	gst_buffer_fill(buffer, 0, frame->data, size);
 
-	GST_BUFFER_FLAG_SET(buffer, GST_BUFFER_FLAG_RESYNC);
+	GST_BUFFER_FLAG_SET(buffer, GST_BUFFER_FLAG_DROPPABLE);
 	GST_BUFFER_PTS(buffer) = pipe->_pts;
 	GST_BUFFER_DTS(buffer) = pipe->_pts;
 	GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale_int(1, GST_SECOND, Config::instance()->outputFps());
@@ -142,7 +147,7 @@ void Rtsp::need_data(GstElement *appsrc, guint unused, gpointer data)
 
 	if (ret != GST_FLOW_OK)
 	{
-		LOGE("[Rtsp] push data error!");
+		LOGE("[Rtsp] push buffer error!");
 		return;
 	}
 }
@@ -150,6 +155,10 @@ void Rtsp::need_data(GstElement *appsrc, guint unused, gpointer data)
 MatPtr Rtsp::getNextFrame()
 {
 	MatPtr frame = _data.pop();
+	if (frame != nullptr)
+		_frame = frame;
+	else if (frame == nullptr)
+		return _frame;
 	return frame;
 }
 

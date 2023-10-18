@@ -27,7 +27,7 @@
 		"classes": []
 	},
 	"input": {
-	    "type": 1, // 0 - camera, 1 - file
+	    "type": 0, // 0 - camera, 1 - v4lcamera, 2 - file
 		"camera": {
 		    "dev": 0,
 			"width": 640,
@@ -60,7 +60,7 @@
 		},
 		"file": {
 		    "path": "/home/aleksey/video.mp4",
-			"codecid": 27 // h264
+			"codecid": 27
 		}
 	}
 }

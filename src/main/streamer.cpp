@@ -4,6 +4,7 @@
 #include "input/ocv.h"
 #include "input/camera.h"
 #include "input/file.h"
+#include "input/v4lcamera.h"
 #include "output/rtp.h"
 #include "output/rtsp.h"
 #include "output/hls.h"
@@ -117,6 +118,8 @@ bool Streamer::start()
 	// Create input object
 	if (Config::instance()->inputType() == InputType::Camera)
 		_input = input::Camera::create();
+	else if (Config::instance()->inputType() == InputType::V4lCamera)
+		_input = input::V4lCamera::create();
 	else if (Config::instance()->inputType() == InputType::File)
 		_input = input::File::create();
 
