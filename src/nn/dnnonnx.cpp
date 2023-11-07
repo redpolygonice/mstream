@@ -8,7 +8,7 @@ namespace nn
 
 DnnOnnx::DnnOnnx(NnType type)
 	: INNetwork(type)
-	, _dnnType(DnnType::Yolox)
+	, _dnnType(DnnType::Darknet)
 	, _width(0)
 	, _height(0)
 {

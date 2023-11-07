@@ -8,9 +8,6 @@
 #include "imgproc/imageprocessor.h"
 #include "common/threadsafequeue.h"
 
-class Streamer;
-typedef std::shared_ptr<Streamer> StreamerPtr;
-
 // Streamer object
 class Streamer : public std::enable_shared_from_this<Streamer>
 {
@@ -29,8 +26,6 @@ private:
 	bool _detect;
 	bool _imgproc;
 
-	static StreamerPtr _instance;
-
 private:
 	void read();
 	void write();
@@ -43,8 +38,10 @@ public:
 public:
 	bool start();
 	void stop();
-
-	static StreamerPtr instance() { return _instance; }
 };
+
+typedef std::shared_ptr<Streamer> StreamerPtr;
+
+StreamerPtr GetStreamer();
 
 #endif // STREAMER_H

@@ -220,7 +220,7 @@ bool AvWriter::openFile(const string &fileName)
 	}
 
 	// Create SWS for scale
-	_swsCtx = sws_getContext(_codecCtx->width, _codecCtx->height, AV_PIX_FMT_RGB24, _codecCtx->width, _codecCtx->height,
+	_swsCtx = sws_getContext(_codecCtx->width, _codecCtx->height, AV_PIX_FMT_BGR24, _codecCtx->width, _codecCtx->height,
 							 _format, SWS_BICUBIC, 0, 0, 0);
 
 	_linesize[0] = { _width * _colordepth / 8 };

@@ -25,8 +25,6 @@
 #include "nn/tenginetimvx.h"
 #endif
 
-StreamerPtr Streamer::_instance = nullptr;
-
 Streamer::Streamer()
 	: _active(false)
 	, _nn(nullptr)
@@ -199,8 +197,6 @@ void Streamer::stop()
 		_output->close();
 		_output.reset();
 	}
-
-	_instance = nullptr;
 }
 
 void Streamer::read()
@@ -291,4 +287,12 @@ bool Streamer::detect(const MatPtr &frame)
 	}
 
 	return result;
+}
+
+StreamerPtr GetStreamer()
+{
+	static StreamerPtr streamer = nullptr;
+	if (streamer == nullptr)
+		streamer.reset(new Streamer());
+	return streamer;
 }

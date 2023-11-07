@@ -20,10 +20,13 @@ bool Rtp::open()
 	gstString += ",width=" + std::to_string(Config::instance()->outputWidth());
 	gstString += ",height=" + std::to_string(Config::instance()->outputHeight());
 	gstString += ",framerate=" + std::to_string(Config::instance()->outputFps()) + "/1";
-	if (Config::instance()->procType() == ProcType::Unknown)
-		gstString += " ! x264enc ! rtph264pay ! queue ! udpsink";
+	if (Config::instance()->procType() == ProcType::Rpi3)
+		gstString += " ! omxh264enc control-rate=2 target-bitrate=2000000";
 	else if (Config::instance()->procType() == ProcType::Rk)
-		gstString += " ! mpph264enc ! rtph264pay ! queue ! udpsink";
+		gstString += " ! mpph264enc bps=2000000";
+	else
+		gstString += " ! x264enc speed-preset=superfast tune=zerolatency";
+	gstString += " ! rtph264pay ! queue ! udpsink";
 	gstString += " host=" + Config::instance()->rtpHost();
 	gstString += " port=" + std::to_string(Config::instance()->rtpPort());
 	gstString += " sync=false";

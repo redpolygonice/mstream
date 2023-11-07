@@ -70,6 +70,60 @@ static void YUYV2RGB(int width, int height, unsigned char *yuyv_image, unsigned 
 	}
 }
 
+static void YUYV2BGR(int width, int height, unsigned char *yuyv_image, unsigned char *bgr_image)
+{
+	int y;
+	int cr;
+	int cb;
+
+	double r;
+	double g;
+	double b;
+
+	for (int i = 0, j = 0; i < width * height * 3; i+=6, j+=4) {
+		//first pixel
+		y = yuyv_image[j];
+		cb = yuyv_image[j+1];
+		cr = yuyv_image[j+3];
+
+		r = y + (1.4065 * (cr - 128));
+		g = y - (0.3455 * (cb - 128)) - (0.7169 * (cr - 128));
+		b = y + (1.7790 * (cb - 128));
+
+		//This prevents colour distortions in your rgb image
+		if (r < 0) r = 0;
+		else if (r > 255) r = 255;
+		if (g < 0) g = 0;
+		else if (g > 255) g = 255;
+		if (b < 0) b = 0;
+		else if (b > 255) b = 255;
+
+		bgr_image[i] = (unsigned char)b;
+		bgr_image[i+1] = (unsigned char)g;
+		bgr_image[i+2] = (unsigned char)r;
+
+		//second pixel
+		y = yuyv_image[j+2];
+		cb = yuyv_image[j+1];
+		cr = yuyv_image[j+3];
+
+		r = y + (1.4065 * (cr - 128));
+		g = y - (0.3455 * (cb - 128)) - (0.7169 * (cr - 128));
+		b = y + (1.7790 * (cb - 128));
+
+		if (r < 0) r = 0;
+		else if (r > 255) r = 255;
+		if (g < 0) g = 0;
+		else if (g > 255) g = 255;
+		if (b < 0) b = 0;
+		else if (b > 255) b = 255;
+
+		bgr_image[i+3] = (unsigned char)b;
+		bgr_image[i+4] = (unsigned char)g;
+		bgr_image[i+5] = (unsigned char)r;
+	}
+}
+
 static int xioctl(int fd, int request, void *arg)
 {
 	int r;
@@ -423,14 +477,14 @@ int V4lCamera::getFrame(MatPtr &frame)
 	else
 		bytesused = buf.bytesused;
 
-	// Format data
-	int imgsize = _width * _height * 3;
-	uint8_t *imageData = (uint8_t *)malloc(imgsize);
-	YUYV2RGB(_width, _height, (uint8_t *)_buffers[buf.index].start, imageData);
+	// Convert raw data
+	const int imgsize = _width * _height * 3;
+	uint8_t imageData[imgsize];
+	YUYV2BGR(_width, _height, (uint8_t *)_buffers[buf.index].start, imageData);
 
-	cv::Mat data(_height, _width, CV_8UC3, imageData);
-	data.assignTo(*frame);
-	free(imageData);
+	// Create Mat
+	frame->create(_height, _width, CV_8UC3);
+	memcpy(frame->data, imageData, imgsize);
 
 	// Queue buffer
 	if (-1 == xioctl(_fd, VIDIOC_QBUF, &buf))

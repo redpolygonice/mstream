@@ -4,11 +4,9 @@
 
 #include <signal.h>
 
-Streamer streamer;
-
 void sighandler(int /*sig*/)
 {
-	streamer.stop();
+	GetStreamer()->stop();
 	LOGW("Program terminated!");
 	exit(1);
 }
@@ -19,7 +17,7 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, sighandler);
 
 	Log::create();
-	if (!streamer.start())
+	if (!GetStreamer()->start())
 		return 1;
 	return 0;
 }

@@ -29,10 +29,12 @@ bool Hls::open()
 	gstString += ",width=" + std::to_string(Config::instance()->outputWidth());
 	gstString += ",height=" + std::to_string(Config::instance()->outputHeight());
 	gstString += ",framerate=" + std::to_string(Config::instance()->outputFps()) + "/1";
-	if (Config::instance()->procType() == ProcType::Unknown)
-		gstString += " ! x264enc tune=zerolatency ! mpegtsmux !";
+	if (Config::instance()->procType() == ProcType::Rpi3)
+		gstString += " ! omxh264enc control-rate=2 target-bitrate=2000000 ! mpegtsmux !";
 	else if (Config::instance()->procType() == ProcType::Rk)
-		gstString += " ! mpph264enc ! mpegtsmux !";
+		gstString += " ! mpph264enc bps=2000000 ! mpegtsmux !";
+	else
+		gstString += " ! x264enc speed-preset=superfast tune=zerolatency bitrate=2000000 ! mpegtsmux !";
 	gstString += " hlssink playlist-root=http://" + Config::instance()->hlsAddress();
 	gstString += " location=" + Config::instance()->hlsLocation();
 	gstString += " playlist-location=" + Config::instance()->hlsPlaylistLocation();

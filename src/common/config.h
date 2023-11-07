@@ -25,6 +25,8 @@ enum class OutputType
 enum class ProcType
 {
 	Unknown,
+	Rpi3,
+	Rpi4,
 	Rk
 };
 

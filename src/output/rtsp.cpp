@@ -78,16 +78,23 @@ void Rtsp::run()
 		return;
 	}
 
-	gst_rtsp_media_factory_set_launch(_factory,
-									  "( appsrc name=appsrc ! videoconvert ! "
-									  "x264enc speed-preset=superfast tune=zerolatency ! rtph264pay name=pay0 pt=96 )");
+	string launchCmd = "( appsrc name=appsrc ! videoconvert ! ";
+	if (Config::instance()->procType() == ProcType::Rpi3)
+		launchCmd += "omxh264enc control-rate=2 target-bitrate=2000000 ! ";
+	else if (Config::instance()->procType() == ProcType::Rk)
+		launchCmd += "mpph264enc bps=2000000 ! ";
+	else
+		launchCmd += "x264enc speed-preset=superfast tune=zerolatency cabac=false byte-stream=true threads=4 ! ";
+	launchCmd += "video/x-h264, profile=baseline ! ";
+	launchCmd += "rtph264pay name=pay0 pt=96 )";
 
+	gst_rtsp_media_factory_set_launch(_factory, launchCmd.c_str());
 	g_signal_connect(_factory, "media-configure", (GCallback)media_configure, this);
-	gst_rtsp_mount_points_add_factory(_mounts, "/test", _factory);
+	gst_rtsp_mount_points_add_factory(_mounts, "/camera", _factory);
 	g_object_unref(_mounts);
 
 	gst_rtsp_server_attach(_server, nullptr);
-	g_print("Stream ready at rtsp://127.0.0.1:8554/test\n");
+	g_print("Stream ready at rtsp://127.0.0.1:8554/camera\n");
 	g_main_loop_run(_loop);
 }
 
