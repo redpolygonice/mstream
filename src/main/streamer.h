@@ -8,8 +8,10 @@
 #include "imgproc/imageprocessor.h"
 #include "common/threadsafequeue.h"
 
+using WaitFunc = std::function<void()>;
+
 // Streamer object
-class Streamer : public std::enable_shared_from_this<Streamer>
+class Streamer
 {
 private:
 	std::atomic_bool _active;
@@ -21,15 +23,22 @@ private:
 	std::unique_ptr<std::thread> _readThread;
 	std::unique_ptr<std::thread> _writeThread;
 
+	std::thread _detectThread;
+	std::mutex _detectMutex;
+	std::condition_variable _detectWait;
+	std::atomic_bool _detectResult;
+
 	bool _window;
 	bool _async;
 	bool _detect;
+	bool _detectAsync = false;
 	bool _imgproc;
 
 private:
 	void read();
 	void write();
 	bool detect(const MatPtr &frame);
+	bool detect_async(const MatPtr &frame, const WaitFunc &waitFunc = nullptr);
 
 public:
 	Streamer();
@@ -40,8 +49,14 @@ public:
 	void stop();
 };
 
-typedef std::shared_ptr<Streamer> StreamerPtr;
+using StreamerPtr = std::shared_ptr<Streamer>;
 
-StreamerPtr GetStreamer();
+inline StreamerPtr GetStreamer()
+{
+	static StreamerPtr streamer = nullptr;
+	if (streamer == nullptr)
+		streamer = std::make_shared<Streamer>();
+	return streamer;
+}
 
 #endif // STREAMER_H

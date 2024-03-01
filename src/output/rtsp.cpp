@@ -79,9 +79,9 @@ void Rtsp::run()
 	}
 
 	string launchCmd = "( appsrc name=appsrc ! videoconvert ! ";
-	if (Config::instance()->procType() == ProcType::Rpi3)
+	if (GetConfig()->procType() == ProcType::Rpi3)
 		launchCmd += "omxh264enc control-rate=2 target-bitrate=2000000 ! ";
-	else if (Config::instance()->procType() == ProcType::Rk)
+	else if (GetConfig()->procType() == ProcType::Rk)
 		launchCmd += "mpph264enc bps=2000000 ! ";
 	else
 		launchCmd += "x264enc speed-preset=superfast tune=zerolatency cabac=false byte-stream=true threads=4 ! ";
@@ -110,9 +110,9 @@ void Rtsp::media_configure(GstRTSPMediaFactory *factory, GstRTSPMedia *media, gp
 	gst_util_set_object_arg(G_OBJECT(appsrc), "format", "time");
 	GstCaps *caps = gst_caps_new_simple ("video/x-raw",
 										 "format", G_TYPE_STRING, "BGR",
-										 "width", G_TYPE_INT, Config::instance()->outputWidth(),
-										 "height", G_TYPE_INT, Config::instance()->outputHeight(),
-										 "framerate", GST_TYPE_FRACTION, Config::instance()->outputFps(), 1,
+										 "width", G_TYPE_INT, GetConfig()->outputWidth(),
+										 "height", G_TYPE_INT, GetConfig()->outputHeight(),
+										 "framerate", GST_TYPE_FRACTION, GetConfig()->outputFps(), 1,
 										 nullptr);
 	g_object_set(G_OBJECT(appsrc), "caps", caps, nullptr);
 	gst_caps_unref(caps);
@@ -146,7 +146,7 @@ void Rtsp::need_data(GstElement *appsrc, guint unused, gpointer data)
 	GST_BUFFER_FLAG_SET(buffer, GST_BUFFER_FLAG_DROPPABLE);
 	GST_BUFFER_PTS(buffer) = pipe->_pts;
 	GST_BUFFER_DTS(buffer) = pipe->_pts;
-	GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale_int(1, GST_SECOND, Config::instance()->outputFps());
+	GST_BUFFER_DURATION(buffer) = gst_util_uint64_scale_int(1, GST_SECOND, GetConfig()->outputFps());
 	pipe->_pts += GST_BUFFER_DURATION(buffer);
 
 	g_signal_emit_by_name(appsrc, "push-buffer", buffer, &ret);

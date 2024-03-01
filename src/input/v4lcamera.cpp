@@ -140,8 +140,8 @@ V4lCamera::V4lCamera()
 	,_buffers(nullptr)
 	,_bufferCount(4)
 	,_buftype(V4L2_BUF_TYPE_VIDEO_CAPTURE)
-	,_width(Config::instance()->cameraWidth())
-	,_height(Config::instance()->cameraHeight())
+	,_width(GetConfig()->cameraWidth())
+	,_height(GetConfig()->cameraHeight())
 	,_imageQuality(50)
 	,_brightness(50)
 	,_format(V4L2_PIX_FMT_YUYV)
@@ -159,7 +159,7 @@ bool V4lCamera::open()
 	if (_active)
 		close();
 
-	int dev = Config::instance()->cameraDev();
+	int dev = GetConfig()->cameraDev();
 	if (dev < 0)
 	{
 		dev = getVideoDevice();

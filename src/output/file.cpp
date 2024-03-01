@@ -16,13 +16,13 @@ File::~File()
 
 bool File::open()
 {
-	string fileName = Config::instance()->outputFilePath();
-	_writer.setWidth(Config::instance()->outputWidth());
-	_writer.setHeight(Config::instance()->outputHeight());
-	_writer.setFps(Config::instance()->outputFps());
-	_writer.setBitrate(Config::instance()->outputBitrate());
-	_writer.setGop(Config::instance()->outputGop());
-	_writer.setCodec(Config::instance()->outputFileCodec());
+	string fileName = GetConfig()->outputFilePath();
+	_writer.setWidth(GetConfig()->outputWidth());
+	_writer.setHeight(GetConfig()->outputHeight());
+	_writer.setFps(GetConfig()->outputFps());
+	_writer.setBitrate(GetConfig()->outputBitrate());
+	_writer.setGop(GetConfig()->outputGop());
+	_writer.setCodec(GetConfig()->outputFileCodec());
 
 	if (!_writer.open(fileName))
 	{

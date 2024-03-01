@@ -17,7 +17,7 @@ Camera::~Camera()
 
 bool Camera::open()
 {
-	int dev = Config::instance()->cameraDev();
+	int dev = GetConfig()->cameraDev();
 	if (dev < 0)
 	{
 		dev = getVideoDevice();

@@ -26,23 +26,23 @@ bool Hls::open()
 	}
 
 	string gstString = "appsrc ! videoconvert ! videoscale ! video/x-raw";
-	gstString += ",width=" + std::to_string(Config::instance()->outputWidth());
-	gstString += ",height=" + std::to_string(Config::instance()->outputHeight());
-	gstString += ",framerate=" + std::to_string(Config::instance()->outputFps()) + "/1";
-	if (Config::instance()->procType() == ProcType::Rpi3)
+	gstString += ",width=" + std::to_string(GetConfig()->outputWidth());
+	gstString += ",height=" + std::to_string(GetConfig()->outputHeight());
+	gstString += ",framerate=" + std::to_string(GetConfig()->outputFps()) + "/1";
+	if (GetConfig()->procType() == ProcType::Rpi3)
 		gstString += " ! omxh264enc control-rate=2 target-bitrate=2000000 ! mpegtsmux !";
-	else if (Config::instance()->procType() == ProcType::Rk)
+	else if (GetConfig()->procType() == ProcType::Rk)
 		gstString += " ! mpph264enc bps=2000000 ! mpegtsmux !";
 	else
 		gstString += " ! x264enc speed-preset=superfast tune=zerolatency bitrate=2000000 ! mpegtsmux !";
-	gstString += " hlssink playlist-root=http://" + Config::instance()->hlsAddress();
-	gstString += " location=" + Config::instance()->hlsLocation();
-	gstString += " playlist-location=" + Config::instance()->hlsPlaylistLocation();
+	gstString += " hlssink playlist-root=http://" + GetConfig()->hlsAddress();
+	gstString += " location=" + GetConfig()->hlsLocation();
+	gstString += " playlist-location=" + GetConfig()->hlsPlaylistLocation();
 	gstString += " target-duration=5 max-files=10";
 
 	LOG("HLS string: " << gstString);
 
-	if (!_writer.open(gstString, 0, Config::instance()->outputFps(),  cv::Size(Config::instance()->outputWidth(), Config::instance()->outputHeight())))
+	if (!_writer.open(gstString, 0, GetConfig()->outputFps(),  cv::Size(GetConfig()->outputWidth(), GetConfig()->outputHeight())))
 	{
 		LOGE("Can't open writer!");
 		return false;
@@ -87,7 +87,7 @@ bool Hls::startHttpServer()
 		system("python3 -m http.server 8080");
 	});
 
-	sleep(50);
+	sleepFor(50);
 	chdir(curDir.c_str());
 	return true;
 }

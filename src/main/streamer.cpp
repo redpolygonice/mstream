@@ -1,4 +1,5 @@
 #include "streamer.h"
+#include "common/common.h"
 #include "common/log.h"
 #include "common/config.h"
 #include "input/ocv.h"
@@ -46,38 +47,38 @@ Streamer::~Streamer()
 bool Streamer::start()
 {
 	// Load settings
-	if (!Config::instance()->load())
+	if (!GetConfig()->load())
 	{
 		LOGE("Can't load settings!");
 		return false;
 	}
 
 	// Load neural network
-	_detect = Config::instance()->detect();
+	_detect = GetConfig()->detect();
 	if (_detect)
 	{
-		if (Config::instance()->nnType() == NnType::DnnDarknet)
-			_nn = nn::Dnn::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::DnnCaffe)
-			_nn = nn::Dnn::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::DnnTensorflow)
-			_nn = nn::Dnn::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::DnnTorch)
-			_nn = nn::Dnn::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::DnnONNX)
-			_nn = nn::DnnOnnx::create(Config::instance()->nnType());
-		else if (Config::instance()->nnType() == NnType::Khadas)
+		if (GetConfig()->nnType() == NnType::DnnDarknet)
+			_nn = nn::Dnn::create(GetConfig()->nnType());
+		else if (GetConfig()->nnType() == NnType::DnnCaffe)
+			_nn = nn::Dnn::create(GetConfig()->nnType());
+		else if (GetConfig()->nnType() == NnType::DnnTensorflow)
+			_nn = nn::Dnn::create(GetConfig()->nnType());
+		else if (GetConfig()->nnType() == NnType::DnnTorch)
+			_nn = nn::Dnn::create(GetConfig()->nnType());
+		else if (GetConfig()->nnType() == NnType::DnnONNX)
+			_nn = nn::DnnOnnx::create(GetConfig()->nnType());
+		else if (GetConfig()->nnType() == NnType::Khadas)
 			_nn = nn::Khadas::create();
 #ifdef USE_RKNN
-		else if (Config::instance()->nnType() == NnType::Rknn)
+		else if (GetConfig()->nnType() == NnType::Rknn)
 			_nn = nn::Rknn::create();
 #endif
 #ifdef USE_TENGINE
-		else if (Config::instance()->nnType() == NnType::Tengine)
+		else if (GetConfig()->nnType() == NnType::Tengine)
 			_nn = nn::Tengine::create();
-		else if (Config::instance()->nnType() == NnType::Tengine8bit)
+		else if (GetConfig()->nnType() == NnType::Tengine8bit)
 			_nn = nn::Tengine8bit::create();
-		else if (Config::instance()->nnType() == NnType::TengineTimvx)
+		else if (GetConfig()->nnType() == NnType::TengineTimvx)
 			_nn = nn::TengineTimvx::create();
 #endif
 
@@ -87,15 +88,15 @@ bool Streamer::start()
 			return false;
 		}
 
-		_nn->setModelWidth(Config::instance()->modelWidth());
-		_nn->setModelHeight(Config::instance()->modelHeight());
-		_nn->setModelChannels(Config::instance()->modelChannels());
-		_nn->setNumClasses(Config::instance()->numClasses());
-		_nn->setConfThreshold(Config::instance()->confThreshold());
-		_nn->setNmsThreshold(Config::instance()->nmsThreshold());
-		_nn->setClassesFile(Config::instance()->classesFile());
+		_nn->setModelWidth(GetConfig()->modelWidth());
+		_nn->setModelHeight(GetConfig()->modelHeight());
+		_nn->setModelChannels(GetConfig()->modelChannels());
+		_nn->setNumClasses(GetConfig()->numClasses());
+		_nn->setConfThreshold(GetConfig()->confThreshold());
+		_nn->setNmsThreshold(GetConfig()->nmsThreshold());
+		_nn->setClassesFile(GetConfig()->classesFile());
 
-		if (!_nn->init(Config::instance()->modelPath(), Config::instance()->cfgPath()))
+		if (!_nn->init(GetConfig()->modelPath(), GetConfig()->cfgPath()))
 		{
 			LOGE("Can't load NN!");
 			return false;
@@ -103,7 +104,7 @@ bool Streamer::start()
 	}
 
 	// Load image processor
-	_imgproc = Config::instance()->imgproc();
+	_imgproc = GetConfig()->imgproc();
 	if (_imgproc)
 	{
 		if (!_imageProcessor.load())
@@ -114,11 +115,11 @@ bool Streamer::start()
 	}
 
 	// Create input object
-	if (Config::instance()->inputType() == InputType::Camera)
+	if (GetConfig()->inputType() == InputType::Camera)
 		_input = input::Camera::create();
-	else if (Config::instance()->inputType() == InputType::V4lCamera)
+	else if (GetConfig()->inputType() == InputType::V4lCamera)
 		_input = input::V4lCamera::create();
-	else if (Config::instance()->inputType() == InputType::File)
+	else if (GetConfig()->inputType() == InputType::File)
 		_input = input::File::create();
 
 	if (_input == nullptr)
@@ -134,15 +135,15 @@ bool Streamer::start()
 	}
 
 	// Create output object
-	if (Config::instance()->outputType() == OutputType::Null)
+	if (GetConfig()->outputType() == OutputType::Null)
 		_output = output::Null::create();
-	else if (Config::instance()->outputType() == OutputType::Rtp)
+	else if (GetConfig()->outputType() == OutputType::Rtp)
 		_output = output::Rtp::create();
-	else if (Config::instance()->outputType() == OutputType::Rtsp)
+	else if (GetConfig()->outputType() == OutputType::Rtsp)
 		_output = output::Rtsp::create();
-	else if (Config::instance()->outputType() == OutputType::Hls)
+	else if (GetConfig()->outputType() == OutputType::Hls)
 		_output = output::Hls::create();
-	else if (Config::instance()->outputType() == OutputType::File)
+	else if (GetConfig()->outputType() == OutputType::File)
 		_output = output::File::create();
 
 	if (_output == nullptr)
@@ -157,8 +158,8 @@ bool Streamer::start()
 		return false;
 	}
 
-	_window = Config::instance()->window();
-	_async = Config::instance()->async();
+	_window = GetConfig()->window();
+	_async = GetConfig()->async();
 	_active = true;
 
 	if (_async)
@@ -219,7 +220,7 @@ void Streamer::write()
 
 	LOG("Start detect ..");
 
-	int delay = 1000 / Config::instance()->outputFps();
+	int delay = 1000 / GetConfig()->outputFps();
 	if (_detect)
 		delay = std::max(delay - 50, 10);
 
@@ -227,7 +228,7 @@ void Streamer::write()
 	{
 		if (!_output->ready())
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			sleepFor(10);
 			continue;
 		}
 
@@ -252,10 +253,24 @@ void Streamer::write()
 
 			// Detect
 			if (_detect)
-				detect(frame);
+			{
+				if (_detectAsync)
+				{
+					detect_async(frame, [&]() {
+						// Missing frames while detection is working
+						while (!_detectResult)
+						{
+							_input->read();
+							sleepFor(5);
+						}
+					});
+				}
+				else
+					detect(frame);
+			}
 
 			// Show window
-			cv::resize(*frame, *frame, cv::Size(Config::instance()->outputWidth(), Config::instance()->outputHeight()));
+			cv::resize(*frame, *frame, cv::Size(GetConfig()->outputWidth(), GetConfig()->outputHeight()));
 			if (_window)
 				cv::imshow(windowName, *frame);
 
@@ -266,7 +281,7 @@ void Streamer::write()
 		if (_window)
 			cv::waitKey(delay);
 		else
-			std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+			sleepFor(delay);
 	}
 
 	if (_window)
@@ -289,10 +304,17 @@ bool Streamer::detect(const MatPtr &frame)
 	return result;
 }
 
-StreamerPtr GetStreamer()
+bool Streamer::detect_async(const MatPtr &frame, const WaitFunc &waitFunc)
 {
-	static StreamerPtr streamer = nullptr;
-	if (streamer == nullptr)
-		streamer.reset(new Streamer());
-	return streamer;
+	_detectResult = false;
+	std::future<bool> future = std::async(std::launch::async, [&]() {
+		bool result = detect(frame);
+		_detectResult = true;
+		return result;
+	});
+
+	if (waitFunc != nullptr)
+		waitFunc();
+
+	return future.get();
 }

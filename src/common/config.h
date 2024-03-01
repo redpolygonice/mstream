@@ -2,7 +2,6 @@
 #define SETTINGS_H
 
 #include "types.h"
-#include "singleton.h"
 
 static const char kConfigFile[] = "config.json";
 
@@ -51,10 +50,8 @@ enum class NnType
 };
 
 // Application settings
-class Config : public Singleton<Config>
+class Config
 {
-	friend class Singleton<Config>;
-
 private:
 	// Common
 	bool _detect;
@@ -120,7 +117,7 @@ private:
 	string _outputFilePath;
 	int _outputFileCodec;
 
-private:
+public:
 	Config();
 
 public:
@@ -168,5 +165,15 @@ public:
 	string outputFilePath() const { return _outputFilePath; }
 	int outputFileCodec() const { return _outputFileCodec; }
 };
+
+using ConfigPtr = std::shared_ptr<Config>;
+
+inline ConfigPtr GetConfig()
+{
+	static ConfigPtr config = nullptr;
+	if (config == nullptr)
+		config = std::make_shared<Config>();
+	return config;
+}
 
 #endif // SETTINGS_H

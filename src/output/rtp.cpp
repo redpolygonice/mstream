@@ -17,21 +17,21 @@ Rtp::~Rtp()
 bool Rtp::open()
 {
 	string	gstString = "appsrc ! videoconvert ! videoscale ! video/x-raw";
-	gstString += ",width=" + std::to_string(Config::instance()->outputWidth());
-	gstString += ",height=" + std::to_string(Config::instance()->outputHeight());
-	gstString += ",framerate=" + std::to_string(Config::instance()->outputFps()) + "/1";
-	if (Config::instance()->procType() == ProcType::Rpi3)
+	gstString += ",width=" + std::to_string(GetConfig()->outputWidth());
+	gstString += ",height=" + std::to_string(GetConfig()->outputHeight());
+	gstString += ",framerate=" + std::to_string(GetConfig()->outputFps()) + "/1";
+	if (GetConfig()->procType() == ProcType::Rpi3)
 		gstString += " ! omxh264enc control-rate=2 target-bitrate=2000000";
-	else if (Config::instance()->procType() == ProcType::Rk)
+	else if (GetConfig()->procType() == ProcType::Rk)
 		gstString += " ! mpph264enc bps=2000000";
 	else
 		gstString += " ! x264enc speed-preset=superfast tune=zerolatency";
 	gstString += " ! rtph264pay ! queue ! udpsink";
-	gstString += " host=" + Config::instance()->rtpHost();
-	gstString += " port=" + std::to_string(Config::instance()->rtpPort());
+	gstString += " host=" + GetConfig()->rtpHost();
+	gstString += " port=" + std::to_string(GetConfig()->rtpPort());
 	gstString += " sync=false";
 
-	if (!_writer.open(gstString, 0, Config::instance()->outputFps(),  cv::Size(Config::instance()->outputWidth(), Config::instance()->outputHeight())))
+	if (!_writer.open(gstString, 0, GetConfig()->outputFps(),  cv::Size(GetConfig()->outputWidth(), GetConfig()->outputHeight())))
 	{
 		LOGE("Can't open writer!");
 		return false;

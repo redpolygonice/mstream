@@ -42,8 +42,8 @@ bool DnnOnnx::init(const std::string &model, const std::string &cfg, void *param
 		return false;
 	}
 
-	cv::dnn::Backend backend = static_cast<cv::dnn::Backend>(Config::instance()->backend());
-	cv::dnn::Target target = static_cast<cv::dnn::Target>(Config::instance()->target());
+	cv::dnn::Backend backend = static_cast<cv::dnn::Backend>(GetConfig()->backend());
+	cv::dnn::Target target = static_cast<cv::dnn::Target>(GetConfig()->target());
 
 	_net.setPreferableBackend(backend);
 	_net.setPreferableTarget(target);

@@ -21,7 +21,7 @@ File::~File()
 
 bool File::open()
 {
-	string fileName = Config::instance()->inputFilePath();
+	string fileName = GetConfig()->inputFilePath();
 	if (!isFileExists(fileName))
 	{
 		LOGE("File: " << fileName << " doesn't exist!");
@@ -56,6 +56,13 @@ bool File::read(MatPtr &frame)
 	}
 
 	return false;
+}
+
+bool File::read()
+{
+	cv::Mat frame;
+	_reader.read(frame);
+	return true;
 }
 
 }

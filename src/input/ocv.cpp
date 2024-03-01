@@ -17,8 +17,8 @@ Ocv::~Ocv()
 bool Ocv::open()
 {
 	string gstString = "v4l2src device=/dev/video";
-	gstString += std::to_string(Config::instance()->cameraDev());
-	gstString += " ! video/x-raw, format=" + Config::instance()->cameraFormat();
+	gstString += std::to_string(GetConfig()->cameraDev());
+	gstString += " ! video/x-raw, format=" + GetConfig()->cameraFormat();
 	gstString += " ! videoconvert ! video/x-raw, format=BGR ! appsink drop=1";
 
 	if (!_capture.open(gstString, cv::CAP_GSTREAMER))
@@ -27,9 +27,9 @@ bool Ocv::open()
 		return false;
 	}
 
-	_capture.set(cv::CAP_PROP_FPS, Config::instance()->cameraFps());
-	_capture.set(cv::CAP_PROP_FRAME_WIDTH, Config::instance()->cameraWidth());
-	_capture.set(cv::CAP_PROP_FRAME_HEIGHT, Config::instance()->cameraHeight());
+	_capture.set(cv::CAP_PROP_FPS, GetConfig()->cameraFps());
+	_capture.set(cv::CAP_PROP_FRAME_WIDTH, GetConfig()->cameraWidth());
+	_capture.set(cv::CAP_PROP_FRAME_HEIGHT, GetConfig()->cameraHeight());
 
 	_active = true;
 	return true;

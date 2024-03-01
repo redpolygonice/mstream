@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(mstream LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(USE_TENGINE "Use Tengine library" OFF)
@@ -94,38 +94,36 @@ endif()
 
 # Common group
 file (GLOB COMMON_SRC "src/common/*.cpp" "src/common/*.h")
-source_group("common" FILES ${COMMON_SRC})
+source_group("src/common" FILES ${COMMON_SRC})
 set (SOURCES ${SOURCES} ${COMMON_SRC})
 
 # Main group
 file (GLOB CORE_SRC "src/main/*.cpp" "src/main/*.h")
-source_group("main" FILES ${CORE_SRC})
+source_group("src/main" FILES ${CORE_SRC})
 set (SOURCES ${SOURCES} ${CORE_SRC})
 
 # NN group
-file (GLOB NN_SRC "src/nn/*.cpp" "src/nn/*.h" "src/nn/*.cc"
-	"src/nn/rknn/*.cpp" "src/nn/rknn/*.h" "src/nn/rknn/*.cc"
-	"src/nn/tengine/*.cpp" "src/nn/tengine/*.h" "src/nn/tengine/*.cc")
-source_group("nn" FILES ${NN_SRC})
+file (GLOB NN_SRC "src/nn/*.cpp" "src/nn/*.h" "src/nn/*.cc")
+source_group("src/nn" FILES ${NN_SRC})
 set (SOURCES ${SOURCES} ${NN_SRC})
 
 # Input group
 file (GLOB INPUT_SRC "src/input/*.cpp" "src/input/*.h")
-source_group("input" FILES ${INPUT_SRC})
+source_group("src/input" FILES ${INPUT_SRC})
 set (SOURCES ${SOURCES} ${INPUT_SRC})
 
 # Output group
 file (GLOB OUTPUT_SRC "src/output/*.cpp" "src/output/*.h")
-source_group("output" FILES ${OUTPUT_SRC})
+source_group("src/output" FILES ${OUTPUT_SRC})
 set (SOURCES ${SOURCES} ${OUTPUT_SRC})
 
 # Imgproc group
 file (GLOB IMGPROC_SRC "src/imgproc/*.cpp" "src/imgproc/*.h")
-source_group("imgproc" FILES ${IMGPROC_SRC})
+source_group("src/imgproc" FILES ${IMGPROC_SRC})
 set (SOURCES ${SOURCES} ${IMGPROC_SRC})
 
 # Config
-file(GLOB CONFIGFILES "data/*.json")
+file(GLOB CONFIGFILES "data/config.json")
 source_group("config" FILES ${CONFIGFILES})
 set (SOURCES ${SOURCES} ${CONFIGFILES})
 

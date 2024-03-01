@@ -1,18 +1,18 @@
 {
-    "common": {
-	    "detect": true,
+	"common": {
+		"detect": true,
 		"async": false,
 		"procType": 0 // 0 - Unknown, 1 - Rpi3, 2 - Rpi4, 3 - Rk
 	},
 	"imgproc": {
-	    "active": false,
+		"active": false,
 		"type": 1, // 0 - binary, 1 - saturation
 		"red": 30,
 		"green": 10,
 		"blue": 30
 	},
 	"nn": {
-	    "type": 0, // DnnDarknet = 0, DnnCaffe, DnnTensorflow, DnnTorch, DnnONNX, Rknn, Khadas, Tengine, Tengine8bit, TengineTimvx
+		"type": 0, // DnnDarknet = 0, DnnCaffe, DnnTensorflow, DnnTorch, DnnONNX, Rknn, Khadas, Tengine, Tengine8bit, TengineTimvx
 		"modelPath": "/home/aleksey/distr/model/pedestrians/yolov3.weights",
 		"cfgPath": "/home/aleksey/distr/model/pedestrians/yolov3.cfg",
 		"backend": 0,
@@ -22,44 +22,44 @@
 		"modelChannels": 3,
 		"confThreshold": 0.6,
 		"nmsThreshold": 0.7,
-		"numClasses": 2,
+		"numClasses": 80,
 		"classesFile": "",
 		"classes": []
 	},
 	"input": {
-	    "type": 2, // 0 - camera, 1 - v4lcamera, 2 - file
+		"type": 2, // 0 - camera, 1 - v4lcamera, 2 - file
 		"camera": {
-		    "dev": 0,
+			"dev": 0,
 			"width": 640,
 			"height": 480,
 			"fps": 15,
 			"format": "YUY2"
 		},
 		"file": {
-		    "path": "/home/aleksey/distr/model/sample.mp4"
+			"path": "/home/aleksey/distr/model/sample.mp4"
 		}
 	},
 	"output": {
-	    "type": 0, // 0 - null, 1 - rtp, 2 - rtsp, 3 - hls, 4 - file
+		"type": 0, // 0 - null, 1 - rtp, 2 - rtsp, 3 - hls, 4 - file
 		"window": true,
 		"params": {
-		    "width": 640,
+			"width": 640,
 			"height": 480,
 			"fps": 15,
 			"bitrate": 400000,
 			"gop": 12
 		},
 		"rtp": {
-		    "host": "127.0.0.1",
+			"host": "127.0.0.1",
 			"port": 5000
 		},
 		"hls": {
-		    "address": "192.168.1.37:8080",
+			"address": "192.168.1.37:8080",
 			"location": "/home/aleksey/projects/mstream/data/hls/segment_%05d.ts",
 			"playlistLocation": "/home/aleksey/projects/mstream/data/hls/playlist.m3u8"
 		},
 		"file": {
-		    "path": "/home/aleksey/video.mp4",
+			"path": "/home/aleksey/video.mp4",
 			"codecid": 27
 		}
 	}

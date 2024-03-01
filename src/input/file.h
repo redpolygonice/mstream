@@ -28,6 +28,7 @@ public:
 	bool open() override;
 	void close() override;
 	bool read(MatPtr &frame) override;
+	bool read() override;
 };
 
 }

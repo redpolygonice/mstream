@@ -10,10 +10,10 @@ ImageProcessor::ImageProcessor()
 
 bool ImageProcessor::load()
 {
-	_red = Config::instance()->imgRed();
-	_green = Config::instance()->imgGreen();
-	_blue = Config::instance()->imgBlue();
-	_type = Config::instance()->imgprocType();
+	_red = GetConfig()->imgRed();
+	_green = GetConfig()->imgGreen();
+	_blue = GetConfig()->imgBlue();
+	_type = GetConfig()->imgprocType();
 
 	if (_red == 0 && _green == 0 && _blue == 0)
 		return false;
