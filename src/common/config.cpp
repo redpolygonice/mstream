@@ -14,13 +14,13 @@ bool Config::load()
 	std::ifstream ifs(kConfigFile, std::ios::in);
 	if (!ifs.is_open())
 	{
-		string fileName = getCurrentDir() + "/data/" + kConfigFile;
+		string fileName = getCurrentDir() + "/data/config/" + kConfigFile;
 		ifs.open(fileName, std::ios::in);
 
 		if (!ifs.is_open())
 		{
 			// Develop version
-			fileName = string("../data/") + kConfigFile;
+			fileName = string("../data/config/") + kConfigFile;
 			ifs.open(fileName, std::ios::in);
 
 			if (!ifs.is_open())
@@ -97,7 +97,8 @@ bool Config::load()
 	_inputType = static_cast<InputType>(inputObject["type"].asInt());
 
 	// Camera input
-	if (_inputType == InputType::Camera || _inputType == InputType::V4lCamera)
+	if (_inputType == InputType::Camera || _inputType == InputType::GstCamera
+		|| _inputType == InputType::V4lCamera || _inputType == InputType::LibCamera)
 	{
 		Json::Value cameraObject = inputObject["camera"];
 		if (cameraObject.isNull())

@@ -1,12 +1,20 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.14)
 
 project(mstream LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(USE_CLANG "Use CLang compiler" OFF)
 option(USE_TENGINE "Use Tengine library" OFF)
 option(USE_RKNN "Use RKNN library" OFF)
+
+if (USE_CLANG)
+	set(CMAKE_C_COMPILER "/usr/bin/clang")
+	set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+	add_compile_options("-std=c++17" "-stdlib=libstdc++")
+	add_link_options("-fuse-ld=lld" "-stdlib=libstdc++" "-lc++abi" "-v")
+endif()
 
 EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCH)
 message(STATUS "Arch: ${ARCH}")
@@ -38,7 +46,7 @@ pkg_check_modules(GSTREAMER REQUIRED IMPORTED_TARGET gstreamer-1.0)
 include_directories(
 	${GLIB_INCLUDE_DIRS}
 	${GSTREAMER_INCLUDE_DIRS}
-    )
+)
 
 # LibAV
 pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
@@ -47,7 +55,7 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
 	libswresample
 	libswscale
 	libavutil
-    )
+)
 
 # RTSP
 if (${ARCH} MATCHES "x86_64")
@@ -123,7 +131,7 @@ source_group("src/imgproc" FILES ${IMGPROC_SRC})
 set (SOURCES ${SOURCES} ${IMGPROC_SRC})
 
 # Config
-file(GLOB CONFIGFILES "data/config.json")
+file(GLOB CONFIGFILES "data/config/config.json")
 source_group("config" FILES ${CONFIGFILES})
 set (SOURCES ${SOURCES} ${CONFIGFILES})
 

@@ -1,5 +1,5 @@
-#ifndef CAMERAINPUT_H
-#define CAMERAINPUT_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include "common/types.h"
 #include "iinput.h"
@@ -11,20 +11,20 @@ namespace input
 class Camera : public IInput
 {
 private:
-	std::atomic_bool _active;
-	cv::VideoCapture _capture;
+    std::atomic_bool _active;
+    cv::VideoCapture _capture;
 
 public:
-	Camera();
-	virtual ~Camera();
+    Camera();
+    virtual ~Camera();
 
 public:
-	static InputPtr create() { return std::make_shared<Camera>(); }
-	bool open() override;
-	void close() override;
-	bool read(MatPtr &frame) override;
+    static InputPtr create() { return std::make_shared<Camera>(); }
+    bool open() override;
+    void close() override;
+    bool read(MatPtr &frame) override;
 };
 
 }
 
-#endif // CAMERAINPUT_H
+#endif // CAMERA_H

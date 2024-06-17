@@ -2,12 +2,14 @@
 #include "common/common.h"
 #include "common/log.h"
 #include "common/config.h"
-#include "input/ocv.h"
+#include "input/gstcamera.h"
 #include "input/camera.h"
 #include "input/file.h"
 #include "input/v4lcamera.h"
+#include "input/libcamera.h"
 #include "output/rtp.h"
 #include "output/rtsp.h"
+#include "output/tcp.h"
 #include "output/hls.h"
 #include "output/file.h"
 #include "output/null.h"
@@ -117,8 +119,12 @@ bool Streamer::start()
 	// Create input object
 	if (GetConfig()->inputType() == InputType::Camera)
 		_input = input::Camera::create();
+	else if (GetConfig()->inputType() == InputType::GstCamera)
+		_input = input::GstCamera::create();
 	else if (GetConfig()->inputType() == InputType::V4lCamera)
 		_input = input::V4lCamera::create();
+	else if (GetConfig()->inputType() == InputType::LibCamera)
+		_input = input::LibCamera::create();
 	else if (GetConfig()->inputType() == InputType::File)
 		_input = input::File::create();
 
@@ -141,6 +147,8 @@ bool Streamer::start()
 		_output = output::Rtp::create();
 	else if (GetConfig()->outputType() == OutputType::Rtsp)
 		_output = output::Rtsp::create();
+	else if (GetConfig()->outputType() == OutputType::Tcp)
+		_output = output::Tcp::create();
 	else if (GetConfig()->outputType() == OutputType::Hls)
 		_output = output::Hls::create();
 	else if (GetConfig()->outputType() == OutputType::File)
@@ -270,9 +278,11 @@ void Streamer::write()
 			}
 
 			// Show window
-			cv::resize(*frame, *frame, cv::Size(GetConfig()->outputWidth(), GetConfig()->outputHeight()));
 			if (_window)
+			{
+				cv::resize(*frame, *frame, cv::Size(GetConfig()->outputWidth(), GetConfig()->outputHeight()));
 				cv::imshow(windowName, *frame);
+			}
 
 			// Write to output
 			_output->write(frame);

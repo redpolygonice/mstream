@@ -1,5 +1,5 @@
-#ifndef OCVINPUT_H
-#define OCVINPUT_H
+#ifndef GSTCAMERA_H
+#define GSTCAMERA_H
 
 #include "common/types.h"
 #include "iinput.h"
@@ -8,18 +8,18 @@ namespace input
 {
 
 // OpenCV input implemetation
-class Ocv : public IInput
+class GstCamera : public IInput
 {
 private:
 	std::atomic_bool _active;
 	cv::VideoCapture _capture;
 
 public:
-	Ocv();
-	virtual ~Ocv();
+	GstCamera();
+	virtual ~GstCamera();
 
 public:
-	static InputPtr create() { return std::make_shared<Ocv>(); }
+	static InputPtr create() { return std::make_shared<GstCamera>(); }
 	bool open() override;
 	void close() override;
 	bool read(MatPtr &frame) override;
@@ -27,4 +27,4 @@ public:
 
 }
 
-#endif // OCVINPUT_H
+#endif // GSTCAMERA_H

@@ -8,6 +8,8 @@
 #include <dirent.h>
 #include <unistd.h>
 
+#include <regex>
+
 string i2s(int number)
 {
 	char szNumber[20];
@@ -207,4 +209,36 @@ int getVideoDevice()
 	}
 
 	return -1;
+}
+
+void replace(std::string &str, const std::string &from, const std::string &to)
+{
+	str = std::regex_replace(str, std::regex(from), to);
+}
+
+string getOsVersion()
+{
+	string version;
+	std::ifstream ifs("/etc/os-release", std::ios::in);
+	if (!ifs.is_open())
+		return version;
+
+	string line;
+	while(std::getline(ifs, line))
+	{
+		if (line.find("VERSION_ID") != string::npos)
+		{
+			int index = line.find('=');
+			if (index == string::npos)
+				return version;
+
+			version = line.substr(index + 1);
+			replace(version, "\"", "");
+			ifs.close();
+			return version;
+		}
+	}
+
+	ifs.close();
+	return version;
 }

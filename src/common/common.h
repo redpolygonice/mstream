@@ -19,5 +19,6 @@ string getCurrentDir();
 bool createProcess(const char *path, char *const args[], char *const env[]);
 inline void sleepFor(int msec) { std::this_thread::sleep_for(std::chrono::milliseconds(msec)); }
 int getVideoDevice();
+string getOsVersion();
 
 #endif // COMMON_H
